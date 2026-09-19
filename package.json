@@ -16,6 +16,9 @@
     "Other"
   ],
   "main": "./dist/extension.js",
+  "activationEvents": [
+    "onCommand:hiredHand.createResume"
+  ],
   "contributes": {
     "commands": [
       {
