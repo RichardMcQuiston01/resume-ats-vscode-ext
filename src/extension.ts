@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { createDefaultResume } from './resume/template';
 import { ResumeEditorPanel } from './resumeEditor/panel';
+import { registerAtsDiagnostics } from './resumeEditor/diagnostics';
 
 const RESUME_FILE_NAME = 'resume.json';
 
@@ -64,6 +65,8 @@ export function activate(context: vscode.ExtensionContext): void {
   });
 
   context.subscriptions.push(createResumeCommand, editResumeCommand);
+
+  registerAtsDiagnostics(context);
 }
 
 export function deactivate(): void {

@@ -32,3 +32,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   being written to disk.
 - Unit tests for the webview's pure form-state helpers (highlights/skills text
   parsing, empty-entry factories).
+- ATS compatibility checks: `checkAtsCompatibility()` flags missing contact info,
+  missing summary, no experience/skills entries, experience entries with no
+  highlights, overlong highlight bullets, unsafe/decorative characters, and duplicate
+  skills within a group. Warnings are surfaced live in the Problems panel as VS Code
+  diagnostics on `resume.json` (via `jsonc-parser` for JSON-path-to-range mapping),
+  updating as the file is edited.

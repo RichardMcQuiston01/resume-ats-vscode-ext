@@ -42,8 +42,13 @@ Then open the folder in VS Code and press `F5` to launch an Extension Developmen
    certifications, projects). Saving validates the data before writing it back to
    `resume.json`.
 
-ATS validation and export to Markdown/HTML/DOCX/PDF are being built out per the plan
-in [CONTRIBUTING.md](./CONTRIBUTING.md).
+While `resume.json` is open, ATS compatibility warnings (missing contact info,
+sections with no content, overlong or special-character-laden bullet points,
+duplicate skills, and more) appear live in the **Problems** panel, updating as you
+edit.
+
+Export to Markdown/HTML/DOCX/PDF is being built out per the plan in
+[CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ### Examples
 
