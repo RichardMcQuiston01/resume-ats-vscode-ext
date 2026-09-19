@@ -14,6 +14,10 @@ const extensionConfig = {
   external: ['vscode'],
   sourcemap: !production,
   minify: production,
+  // Prefer jsonc-parser's ESM build: its UMD/CJS build uses a runtime require() for
+  // its internal ./impl/* modules that esbuild can't statically bundle, leaving a
+  // dangling require in dist/extension.js. The ESM build uses real import statements.
+  mainFields: ['module', 'main'],
 };
 
 const webviewConfig = {

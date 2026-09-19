@@ -18,7 +18,8 @@
   "main": "./dist/extension.js",
   "activationEvents": [
     "onCommand:hiredHand.createResume",
-    "onCommand:hiredHand.editResume"
+    "onCommand:hiredHand.editResume",
+    "workspaceContains:**/resume.json"
   ],
   "contributes": {
     "commands": [
@@ -46,6 +47,9 @@
     "test:integration": "vscode-test",
     "test": "npm run test:unit && npm run test:integration",
     "package": "vsce package"
+  },
+  "dependencies": {
+    "jsonc-parser": "^3.3.1"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.7",
