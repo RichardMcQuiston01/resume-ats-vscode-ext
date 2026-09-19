@@ -35,21 +35,23 @@ depend on an earlier stage's output start once that dependency is merged to `dev
 
 - **Stage 0 — Foundation** *(done)*: extension scaffold, lint/format config, test
   harness, CI, Marketplace publish-on-tag workflow, baseline docs.
-- **Stage 1 — Resume data model & template**: TypeScript types for resume sections
-  (Contact, Summary, Education, Experience, Skills, Certifications, Projects), a
-  workspace-level resume data file, and a "Create New Resume" command that scaffolds
-  it. Depends on: Stage 0.
-- **Stage 2 — Webview authoring UI**: a webview panel with per-section forms
+- **Stage 1 — Resume data model & template** *(done)*: TypeScript types for resume
+  sections (Contact, Summary, Education, Experience, Skills, Certifications,
+  Projects), a workspace-level resume data file, and a "Create New Resume" command
+  that scaffolds it. Depends on: Stage 0.
+- **Stage 2 — Webview authoring UI** *(done)*: a webview panel with per-section forms
   (add/remove repeatable entries such as multiple jobs or degrees) that reads and
   writes the Stage 1 data model. Depends on: Stage 1 (data model contract).
-- **Stage 3 — ATS compatibility checks**: a rules engine that flags
-  non-ATS-friendly content (tables, images, multi-column layout, non-standard section
-  headers) and surfaces warnings in VS Code. Depends on: Stage 1.
-- **Stage 4 — Export pipeline**: generate the resume as Markdown, HTML, DOCX, and PDF
-  from the Stage 1 data model. Depends on: Stage 1.
-- **Stage 5 — Integration & polish**: end-to-end flow (create → fill → validate →
-  export), command/menu wiring, extension icon and Marketplace listing content,
-  `CHANGELOG.md` update for the first release. Depends on: Stages 1–4 merged to `dev`.
+- **Stage 3 — ATS compatibility checks** *(done)*: a rules engine that flags
+  content-quality issues (missing sections, overlong/unsafe-character bullets,
+  duplicate skills) and surfaces warnings live in VS Code's Problems panel. Depends
+  on: Stage 1.
+- **Stage 4 — Export pipeline** *(done)*: generate the resume as Markdown, HTML,
+  DOCX, and PDF from the Stage 1 data model. Depends on: Stage 1.
+- **Stage 5 — Integration & polish** *(done)*: end-to-end flow (create → fill →
+  validate → export), command/menu wiring, extension icon and Marketplace listing
+  content, `CHANGELOG.md` update for the first release. Depends on: Stages 1–4
+  merged to `dev`.
 - **Stage 6 — Release**: merge `dev` → `staging` for QA, then `staging` → `main`, then
   tag `v0.1.0` to publish.
 
