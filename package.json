@@ -37,7 +37,9 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "pretest": "npm run compile-tests && npm run build",
-    "test": "vscode-test",
+    "test:unit": "mocha --ui tdd \"out/test/unit/**/*.test.js\"",
+    "test:integration": "vscode-test",
+    "test": "npm run test:unit && npm run test:integration",
     "package": "vsce package"
   },
   "devDependencies": {

@@ -18,3 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   pushes to `dev`, `staging`, and `main`.
 - Marketplace publish workflow, triggered by pushing a `vX.Y.Z` tag.
 - `CONTRIBUTING.md` documenting the branch workflow and development plan.
+- Resume data model (`ResumeData` and its section types: contact, summary, education,
+  experience, skills, certifications, projects) and `validateResumeData()` structural
+  validation.
+- **Hired Hand: Create New Resume** now scaffolds a `resume.json` in the workspace root
+  from the default template (or opens the existing one) instead of showing a placeholder
+  message.
+- Unit test suite (`npm run test:unit`) for the resume data model and validator, run
+  independently of the VS Code integration tests.
