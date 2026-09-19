@@ -26,3 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   message.
 - Unit test suite (`npm run test:unit`) for the resume data model and validator, run
   independently of the VS Code integration tests.
+- **Hired Hand: Edit Resume** — a webview-based form editor for `resume.json`, with
+  add/remove controls for repeatable sections (education, experience, skills,
+  certifications, projects). Saves are validated with `validateResumeData()` before
+  being written to disk.
+- Unit tests for the webview's pure form-state helpers (highlights/skills text
+  parsing, empty-entry factories).

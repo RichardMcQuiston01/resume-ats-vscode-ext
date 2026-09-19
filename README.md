@@ -35,13 +35,15 @@ Then open the folder in VS Code and press `F5` to launch an Extension Developmen
 
 1. Open a folder or workspace in VS Code.
 2. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`).
-3. Run **Hired Hand: Create New Resume**.
+3. Run **Hired Hand: Create New Resume** to scaffold a `resume.json` in the workspace
+   root (or open it, if one already exists).
+4. Run **Hired Hand: Edit Resume** to fill it out in a form-based webview editor, with
+   add/remove controls for repeatable sections (education, experience, skills,
+   certifications, projects). Saving validates the data before writing it back to
+   `resume.json`.
 
-This scaffolds a `resume.json` in the workspace root (or opens it, if one already
-exists) with empty contact, summary, education, experience, skills, certifications,
-and projects sections. A form-based webview editor for filling it out, ATS validation,
-and export to Markdown/HTML/DOCX/PDF are being built out per the plan in
-[CONTRIBUTING.md](./CONTRIBUTING.md).
+ATS validation and export to Markdown/HTML/DOCX/PDF are being built out per the plan
+in [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ### Examples
 
