@@ -17,13 +17,18 @@
   ],
   "main": "./dist/extension.js",
   "activationEvents": [
-    "onCommand:hiredHand.createResume"
+    "onCommand:hiredHand.createResume",
+    "onCommand:hiredHand.editResume"
   ],
   "contributes": {
     "commands": [
       {
         "command": "hiredHand.createResume",
         "title": "Hired Hand: Create New Resume"
+      },
+      {
+        "command": "hiredHand.editResume",
+        "title": "Hired Hand: Edit Resume"
       }
     ]
   },

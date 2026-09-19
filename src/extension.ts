@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { createDefaultResume } from './resume/template';
+import { ResumeEditorPanel } from './resumeEditor/panel';
 
 const RESUME_FILE_NAME = 'resume.json';
 
@@ -42,12 +43,27 @@ async function fileExists(uri: vscode.Uri): Promise<boolean> {
   }
 }
 
+async function editResume(extensionUri: vscode.Uri): Promise<void> {
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+  if (!workspaceFolder) {
+    void vscode.window.showErrorMessage(
+      'Hired Hand: open a folder or workspace before editing a resume.',
+    );
+    return;
+  }
+
+  await ResumeEditorPanel.createOrShow(extensionUri, workspaceFolder);
+}
+
 export function activate(context: vscode.ExtensionContext): void {
   const createResumeCommand = vscode.commands.registerCommand('hiredHand.createResume', () => {
     void createResume();
   });
+  const editResumeCommand = vscode.commands.registerCommand('hiredHand.editResume', () => {
+    void editResume(context.extensionUri);
+  });
 
-  context.subscriptions.push(createResumeCommand);
+  context.subscriptions.push(createResumeCommand, editResumeCommand);
 }
 
 export function deactivate(): void {
