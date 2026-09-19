@@ -47,8 +47,10 @@ sections with no content, overlong or special-character-laden bullet points,
 duplicate skills, and more) appear live in the **Problems** panel, updating as you
 edit.
 
-Export to Markdown/HTML/DOCX/PDF is being built out per the plan in
-[CONTRIBUTING.md](./CONTRIBUTING.md).
+5. Run **Hired Hand: Export Resume** and pick a format — Markdown, HTML, DOCX, or
+   PDF. The export is written alongside `resume.json` (e.g. `resume.pdf`) and is
+   single-column with no tables or images, matching the ATS-safe structure the data
+   model already enforces.
 
 ### Examples
 

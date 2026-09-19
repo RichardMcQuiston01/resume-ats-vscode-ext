@@ -38,3 +38,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   skills within a group. Warnings are surfaced live in the Problems panel as VS Code
   diagnostics on `resume.json` (via `jsonc-parser` for JSON-path-to-range mapping),
   updating as the file is edited.
+- **Hired Hand: Export Resume** — exports `resume.json` to Markdown, HTML, DOCX
+  (`docx`), or PDF (`pdf-lib`), written alongside `resume.json` in the workspace root.
+  The HTML/DOCX/PDF output is single-column with no tables or images, matching the
+  ATS-safe structure `checkAtsCompatibility()` already enforces on the source data.
+  Export refuses to run against an invalid `resume.json`.
+- Unit tests for the Markdown/HTML/DOCX/PDF exporters, including structural
+  verification of the generated DOCX (a valid ZIP with `word/document.xml`) and PDF
+  (re-parsed with `pdf-lib` itself) output.

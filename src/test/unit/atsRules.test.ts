@@ -2,38 +2,10 @@ import * as assert from 'assert';
 import { checkAtsCompatibility } from '../../resume/atsRules';
 import { createDefaultResume } from '../../resume/template';
 import type { ResumeData } from '../../resume/types';
+import { fullyPopulatedResume } from './fixtures';
 
 function codesOf(resume: ResumeData): string[] {
   return checkAtsCompatibility(resume).map((warning) => warning.code);
-}
-
-function fullyPopulatedResume(): ResumeData {
-  return {
-    schemaVersion: 1,
-    contact: {
-      fullName: 'Jordan Smith',
-      email: 'jordan@example.com',
-      phone: '555-0100',
-      location: 'Remote',
-      linkedInUrl: 'https://linkedin.com/in/jordansmith',
-      portfolioUrl: 'https://jordansmith.dev',
-    },
-    summary: 'Experienced software engineer.',
-    education: [],
-    experience: [
-      {
-        jobTitle: 'Software Engineer',
-        employer: 'Example Corp',
-        location: 'Remote',
-        startDate: '2018-06',
-        endDate: 'Present',
-        highlights: ['Shipped feature X', 'Reduced latency by 30%'],
-      },
-    ],
-    skills: [{ category: 'Languages', skills: ['TypeScript', 'Go'] }],
-    certifications: [],
-    projects: [],
-  };
 }
 
 suite('checkAtsCompatibility', () => {
