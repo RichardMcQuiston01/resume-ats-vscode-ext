@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-09-19
+
 ### Added
 
 - **Commands**: **Hired Hand: Create New Resume**, **Hired Hand: Edit Resume**, and
@@ -27,14 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   single-column with no tables or images. Export refuses to run against an invalid
   `resume.json`.
 - **Extension icon**, Marketplace keywords, and gallery banner color.
-- `.vscodeignore` so the packaged extension ships only runtime files (`dist/`,
-  `resources/icon.png`, docs) instead of source, tests, and dev tooling.
-
-### Fixed
-
-- The donation QR code in `README.md` is now a PNG (`donate.png`) instead of an SVG:
-  `vsce package` rejects README images in SVG format, which blocked packaging the
-  extension for the Marketplace.
 - **Project scaffold**: `package.json`, TypeScript config, esbuild bundling (two
   entry points: the extension host and the webview script), ESLint + Prettier
   (Google TypeScript Style Guide conventions).
@@ -47,4 +41,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CI**: a workflow running typecheck, lint, format check, and both test suites on
   pull requests and pushes to `dev`, `staging`, and `main`; a Marketplace publish
   workflow triggered by pushing a `vX.Y.Z` tag.
+- `.vscodeignore` so the packaged extension ships only runtime files (`dist/`,
+  `resources/icon.png`, docs) instead of source, tests, and dev tooling.
 - `CONTRIBUTING.md` documenting the branch workflow and development plan.
+
+### Fixed
+
+- The donation QR code in `README.md` is now a PNG (`donate.png`) instead of an SVG:
+  `vsce package` rejects README images in SVG format, which blocked packaging the
+  extension for the Marketplace.
