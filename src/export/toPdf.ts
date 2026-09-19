@@ -1,0 +1,189 @@
+import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib';
+import type { ResumeData } from '../resume/types';
+
+const PAGE_WIDTH = 612; // US Letter, points
+const PAGE_HEIGHT = 792;
+const MARGIN = 54;
+const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
+
+interface ParagraphOptions {
+  size?: number;
+  font?: PDFFont;
+  indent?: number;
+  gapAfter?: number;
+}
+
+// Lays out resume text on US Letter pages by hand: pdf-lib has no text-flow layer of
+// its own, only drawText at fixed coordinates, so wrapping and pagination live here.
+class PdfWriter {
+  regular!: PDFFont;
+  bold!: PDFFont;
+  private doc!: PDFDocument;
+  private page!: PDFPage;
+  private y = 0;
+
+  static async create(): Promise<PdfWriter> {
+    const writer = new PdfWriter();
+    writer.doc = await PDFDocument.create();
+    writer.regular = await writer.doc.embedFont(StandardFonts.Helvetica);
+    writer.bold = await writer.doc.embedFont(StandardFonts.HelveticaBold);
+    writer.addPage();
+    return writer;
+  }
+
+  private addPage(): void {
+    this.page = this.doc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+    this.y = PAGE_HEIGHT - MARGIN;
+  }
+
+  private ensureSpace(lineHeight: number): void {
+    if (this.y - lineHeight < MARGIN) {
+      this.addPage();
+    }
+  }
+
+  private wrap(text: string, font: PDFFont, size: number, maxWidth: number): string[] {
+    const words = text.split(/\s+/).filter((word) => word.length > 0);
+    const lines: string[] = [];
+    let current = '';
+    for (const word of words) {
+      const candidate = current.length > 0 ? `${current} ${word}` : word;
+      if (font.widthOfTextAtSize(candidate, size) > maxWidth && current.length > 0) {
+        lines.push(current);
+        current = word;
+      } else {
+        current = candidate;
+      }
+    }
+    if (current.length > 0) {
+      lines.push(current);
+    }
+    return lines;
+  }
+
+  writeParagraph(text: string, options: ParagraphOptions = {}): void {
+    if (text.trim().length === 0) {
+      return;
+    }
+    const size = options.size ?? 10;
+    const font = options.font ?? this.regular;
+    const indent = options.indent ?? 0;
+    const lineHeight = size * 1.3;
+    const lines = this.wrap(text, font, size, CONTENT_WIDTH - indent);
+    for (const line of lines) {
+      this.ensureSpace(lineHeight);
+      this.page.drawText(line, { x: MARGIN + indent, y: this.y, size, font, color: rgb(0, 0, 0) });
+      this.y -= lineHeight;
+    }
+    this.y -= options.gapAfter ?? 4;
+  }
+
+  writeHeading(text: string): void {
+    this.ensureSpace(24);
+    this.y -= 8;
+    this.page.drawText(text.toUpperCase(), {
+      x: MARGIN,
+      y: this.y,
+      size: 13,
+      font: this.bold,
+      color: rgb(0, 0, 0),
+    });
+    this.y -= 16;
+  }
+
+  writeBullets(items: string[]): void {
+    for (const item of items) {
+      this.writeParagraph(`• ${item}`, { indent: 10, gapAfter: 2 });
+    }
+  }
+
+  async toBuffer(): Promise<Buffer> {
+    const bytes = await this.doc.save();
+    return Buffer.from(bytes);
+  }
+}
+
+export async function resumeToPdfBuffer(resume: ResumeData): Promise<Buffer> {
+  const writer = await PdfWriter.create();
+
+  const name = resume.contact.fullName.trim().length > 0 ? resume.contact.fullName : 'Untitled';
+  writer.writeParagraph(name, { size: 20, font: writer.bold, gapAfter: 4 });
+
+  const contact = [
+    resume.contact.email,
+    resume.contact.phone,
+    resume.contact.location,
+    resume.contact.linkedInUrl,
+    resume.contact.portfolioUrl,
+  ]
+    .filter((part) => part.trim().length > 0)
+    .join('  |  ');
+  writer.writeParagraph(contact, { size: 10, gapAfter: 10 });
+
+  if (resume.summary.trim().length > 0) {
+    writer.writeHeading('Summary');
+    writer.writeParagraph(resume.summary);
+  }
+
+  if (resume.experience.length > 0) {
+    writer.writeHeading('Experience');
+    for (const entry of resume.experience) {
+      const meta = [entry.location, `${entry.startDate} – ${entry.endDate}`]
+        .filter((part) => part.trim().length > 0)
+        .join('  |  ');
+      writer.writeParagraph(`${entry.jobTitle} — ${entry.employer}`, {
+        size: 11,
+        font: writer.bold,
+        gapAfter: 2,
+      });
+      if (meta.length > 0) {
+        writer.writeParagraph(meta, { size: 9, gapAfter: 2 });
+      }
+      writer.writeBullets(entry.highlights);
+    }
+  }
+
+  if (resume.education.length > 0) {
+    writer.writeHeading('Education');
+    for (const entry of resume.education) {
+      const degree = entry.fieldOfStudy ? `${entry.degree}, ${entry.fieldOfStudy}` : entry.degree;
+      const meta = [entry.institution, entry.graduationDate, entry.gpa ? `GPA: ${entry.gpa}` : '']
+        .filter((part) => part.trim().length > 0)
+        .join('  |  ');
+      writer.writeParagraph(degree, { size: 11, font: writer.bold, gapAfter: 2 });
+      if (meta.length > 0) {
+        writer.writeParagraph(meta, { size: 9, gapAfter: 6 });
+      }
+    }
+  }
+
+  if (resume.skills.length > 0) {
+    writer.writeHeading('Skills');
+    for (const group of resume.skills) {
+      writer.writeParagraph(`${group.category}: ${group.skills.join(', ')}`);
+    }
+  }
+
+  if (resume.certifications.length > 0) {
+    writer.writeHeading('Certifications');
+    writer.writeBullets(
+      resume.certifications.map((entry) => `${entry.name} — ${entry.issuer} (${entry.issueDate})`),
+    );
+  }
+
+  if (resume.projects.length > 0) {
+    writer.writeHeading('Projects');
+    for (const entry of resume.projects) {
+      const meta = [entry.description, entry.url]
+        .filter((part) => part.trim().length > 0)
+        .join(' — ');
+      writer.writeParagraph(entry.name, { size: 11, font: writer.bold, gapAfter: 2 });
+      if (meta.length > 0) {
+        writer.writeParagraph(meta, { size: 9, gapAfter: 2 });
+      }
+      writer.writeBullets(entry.highlights);
+    }
+  }
+
+  return writer.toBuffer();
+}

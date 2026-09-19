@@ -10,7 +10,7 @@ suite('Hired Hand extension', () => {
     await extension!.activate();
   });
 
-  test('registers the createResume and editResume commands', async () => {
+  test('registers the createResume, editResume, and exportResume commands', async () => {
     const commands = await vscode.commands.getCommands(true);
     assert.ok(
       commands.includes('hiredHand.createResume'),
@@ -19,6 +19,10 @@ suite('Hired Hand extension', () => {
     assert.ok(
       commands.includes('hiredHand.editResume'),
       'hiredHand.editResume should be registered on activation',
+    );
+    assert.ok(
+      commands.includes('hiredHand.exportResume'),
+      'hiredHand.exportResume should be registered on activation',
     );
   });
 
@@ -31,6 +35,12 @@ suite('Hired Hand extension', () => {
   test('editResume command runs without throwing', async () => {
     await assert.doesNotReject(() =>
       Promise.resolve(vscode.commands.executeCommand('hiredHand.editResume')),
+    );
+  });
+
+  test('exportResume command runs without throwing', async () => {
+    await assert.doesNotReject(() =>
+      Promise.resolve(vscode.commands.executeCommand('hiredHand.exportResume')),
     );
   });
 });

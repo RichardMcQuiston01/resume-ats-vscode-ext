@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { createDefaultResume } from './resume/template';
 import { ResumeEditorPanel } from './resumeEditor/panel';
 import { registerAtsDiagnostics } from './resumeEditor/diagnostics';
+import { exportResume } from './export/exportResume';
 
 const RESUME_FILE_NAME = 'resume.json';
 
@@ -56,6 +57,18 @@ async function editResume(extensionUri: vscode.Uri): Promise<void> {
   await ResumeEditorPanel.createOrShow(extensionUri, workspaceFolder);
 }
 
+async function exportResumeCommand(): Promise<void> {
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+  if (!workspaceFolder) {
+    void vscode.window.showErrorMessage(
+      'Hired Hand: open a folder or workspace before exporting a resume.',
+    );
+    return;
+  }
+
+  await exportResume(workspaceFolder);
+}
+
 export function activate(context: vscode.ExtensionContext): void {
   const createResumeCommand = vscode.commands.registerCommand('hiredHand.createResume', () => {
     void createResume();
@@ -63,8 +76,18 @@ export function activate(context: vscode.ExtensionContext): void {
   const editResumeCommand = vscode.commands.registerCommand('hiredHand.editResume', () => {
     void editResume(context.extensionUri);
   });
+  const exportResumeCommandRegistration = vscode.commands.registerCommand(
+    'hiredHand.exportResume',
+    () => {
+      void exportResumeCommand();
+    },
+  );
 
-  context.subscriptions.push(createResumeCommand, editResumeCommand);
+  context.subscriptions.push(
+    createResumeCommand,
+    editResumeCommand,
+    exportResumeCommandRegistration,
+  );
 
   registerAtsDiagnostics(context);
 }
