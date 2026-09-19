@@ -5,9 +5,21 @@
   "version": "0.0.1",
   "publisher": "richardmcquiston01",
   "license": "Apache-2.0",
+  "icon": "resources/icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/RichardMcQuiston01/resume-ats-vscode-ext.git"
+  },
+  "keywords": [
+    "resume",
+    "cv",
+    "ats",
+    "job search",
+    "career"
+  ],
+  "galleryBanner": {
+    "color": "#2563EB",
+    "theme": "dark"
   },
   "engines": {
     "vscode": "^1.85.0"
@@ -26,17 +38,34 @@
     "commands": [
       {
         "command": "hiredHand.createResume",
-        "title": "Hired Hand: Create New Resume"
+        "title": "Hired Hand: Create New Resume",
+        "icon": "$(new-file)"
       },
       {
         "command": "hiredHand.editResume",
-        "title": "Hired Hand: Edit Resume"
+        "title": "Hired Hand: Edit Resume",
+        "icon": "$(edit)"
       },
       {
         "command": "hiredHand.exportResume",
-        "title": "Hired Hand: Export Resume"
+        "title": "Hired Hand: Export Resume",
+        "icon": "$(export)"
       }
-    ]
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "hiredHand.editResume",
+          "when": "resourceFilename == resume.json",
+          "group": "navigation@1"
+        },
+        {
+          "command": "hiredHand.exportResume",
+          "when": "resourceFilename == resume.json",
+          "group": "navigation@2"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run build",

@@ -1,0 +1,15 @@
+.eslintrc.json
+.gitignore
+.prettierrc.json
+.vscode/**
+.vscode-test.mjs
+.vscode-test/**
+.github/**
+CONTRIBUTING.md
+donate.svg
+esbuild.js
+node_modules/**
+out/**
+package-lock.json
+src/**
+tsconfig.json

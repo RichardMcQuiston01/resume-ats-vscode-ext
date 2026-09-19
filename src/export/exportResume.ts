@@ -8,9 +8,11 @@ import { resumeToPdfBuffer } from './toPdf';
 
 const RESUME_FILE_NAME = 'resume.json';
 
+export type ExportExtension = 'md' | 'html' | 'docx' | 'pdf';
+
 interface ExportFormat {
   label: string;
-  extension: string;
+  extension: ExportExtension;
   generate: (resume: ResumeData) => string | Promise<Buffer>;
 }
 
@@ -45,6 +47,47 @@ async function readResume(resumeUri: vscode.Uri): Promise<ResumeData | undefined
   return parsed as ResumeData;
 }
 
+async function performExport(
+  workspaceFolder: vscode.WorkspaceFolder,
+  resume: ResumeData,
+  format: ExportFormat,
+): Promise<vscode.Uri | undefined> {
+  const outputUri = vscode.Uri.joinPath(workspaceFolder.uri, `resume.${format.extension}`);
+  try {
+    const content = await format.generate(resume);
+    const bytes = typeof content === 'string' ? Buffer.from(content, 'utf8') : content;
+    await vscode.workspace.fs.writeFile(outputUri, bytes);
+    return outputUri;
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    void vscode.window.showErrorMessage(`Hired Hand: failed to export resume: ${reason}`);
+    return undefined;
+  }
+}
+
+/**
+ * Non-interactive export core: reads/validates resume.json and writes the given
+ * format, with no QuickPick or notification prompt. Used directly by tests, and by
+ * exportResume() below once a format has been picked.
+ */
+export async function exportResumeToFormat(
+  workspaceFolder: vscode.WorkspaceFolder,
+  extension: ExportExtension,
+): Promise<vscode.Uri | undefined> {
+  const resumeUri = vscode.Uri.joinPath(workspaceFolder.uri, RESUME_FILE_NAME);
+  const resume = await readResume(resumeUri);
+  if (!resume) {
+    return undefined;
+  }
+
+  const format = FORMATS.find((candidate) => candidate.extension === extension);
+  if (!format) {
+    throw new Error(`Unknown export format: ${extension}`);
+  }
+
+  return performExport(workspaceFolder, resume, format);
+}
+
 export async function exportResume(workspaceFolder: vscode.WorkspaceFolder): Promise<void> {
   const resumeUri = vscode.Uri.joinPath(workspaceFolder.uri, RESUME_FILE_NAME);
   const resume = await readResume(resumeUri);
@@ -64,14 +107,8 @@ export async function exportResume(workspaceFolder: vscode.WorkspaceFolder): Pro
     return;
   }
 
-  const outputUri = vscode.Uri.joinPath(workspaceFolder.uri, `resume.${format.extension}`);
-  try {
-    const content = await format.generate(resume);
-    const bytes = typeof content === 'string' ? Buffer.from(content, 'utf8') : content;
-    await vscode.workspace.fs.writeFile(outputUri, bytes);
-  } catch (error) {
-    const reason = error instanceof Error ? error.message : String(error);
-    void vscode.window.showErrorMessage(`Hired Hand: failed to export resume: ${reason}`);
+  const outputUri = await performExport(workspaceFolder, resume, format);
+  if (!outputUri) {
     return;
   }
 
