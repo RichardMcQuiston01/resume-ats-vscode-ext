@@ -1,6 +1,8 @@
-# template-repo
+# Hired Hand:  Resume Builder
 
 ## Overview
+
+Visual Studio Code Extension for creating an ATS compatible resume. Extension is able to output a template, which is then filled out by the user inputting information for various setions(Education, Experience, etc.).
 
 ## Getting Started
 
