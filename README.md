@@ -33,16 +33,37 @@ Then open the folder in VS Code and press `F5` to launch an Extension Developmen
 
 ### Usage
 
-1. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`).
-2. Run **Hired Hand: Create New Resume**.
+1. Open a folder or workspace in VS Code.
+2. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`).
+3. Run **Hired Hand: Create New Resume**.
 
-The command currently shows a placeholder message; the resume-authoring webview and
-ATS-compatible export pipeline are being built out per the plan in
+This scaffolds a `resume.json` in the workspace root (or opens it, if one already
+exists) with empty contact, summary, education, experience, skills, certifications,
+and projects sections. A form-based webview editor for filling it out, ATS validation,
+and export to Markdown/HTML/DOCX/PDF are being built out per the plan in
 [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ### Examples
 
-Coming soon once the template and export features land.
+```json
+{
+  "schemaVersion": 1,
+  "contact": {
+    "fullName": "",
+    "email": "",
+    "phone": "",
+    "location": "",
+    "linkedInUrl": "",
+    "portfolioUrl": ""
+  },
+  "summary": "",
+  "education": [],
+  "experience": [],
+  "skills": [],
+  "certifications": [],
+  "projects": []
+}
+```
 
 ## Buy Me a Coffee
 
