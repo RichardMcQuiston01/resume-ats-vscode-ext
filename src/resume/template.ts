@@ -1,4 +1,5 @@
 import type { ResumeData } from './types';
+import { DEFAULT_SECTION_ORDER } from './sections';
 
 export function createDefaultResume(): ResumeData {
   return {
@@ -12,6 +13,7 @@ export function createDefaultResume(): ResumeData {
       portfolioUrl: '',
     },
     summary: '',
+    sectionOrder: [...DEFAULT_SECTION_ORDER],
     education: [],
     experience: [],
     skills: [],

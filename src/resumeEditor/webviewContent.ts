@@ -11,8 +11,14 @@ function getNonce(): string {
 
 function section(id: string, legend: string, addLabel: string): string {
   return `
-  <fieldset>
-    <legend>${legend}</legend>
+  <fieldset id="section-${id}">
+    <legend>
+      <span>${legend}</span>
+      <span class="section-controls">
+        <button type="button" id="${id}-move-up" title="Move section up" aria-label="Move ${legend} section up">&#9650;</button>
+        <button type="button" id="${id}-move-down" title="Move section down" aria-label="Move ${legend} section down">&#9660;</button>
+      </span>
+    </legend>
     <div id="${id}-list"></div>
     <button type="button" id="${id}-add">${addLabel}</button>
   </fieldset>`;
@@ -59,6 +65,14 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       margin-bottom: 16px;
       border: 1px solid var(--vscode-panel-border);
     }
+    legend {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      gap: 8px;
+      padding: 0 4px;
+    }
     label {
       display: block;
       margin-bottom: 8px;
@@ -99,6 +113,13 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       gap: 4px;
     }
     .entry-controls button {
+      margin-top: 0;
+    }
+    .section-controls {
+      display: flex;
+      gap: 4px;
+    }
+    .section-controls button {
       margin-top: 0;
     }
     button.save-button {
@@ -147,11 +168,13 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       <textarea id="summary" rows="4"></textarea>
     </fieldset>
 
-    ${section('education', 'Education', 'Add Education')}
-    ${section('experience', 'Experience', 'Add Experience')}
-    ${section('skills', 'Skills', 'Add Skill Group')}
-    ${section('certifications', 'Certifications', 'Add Certification')}
-    ${section('projects', 'Projects', 'Add Project')}
+    <div id="sections-container">
+      ${section('education', 'Education', 'Add Education')}
+      ${section('experience', 'Experience', 'Add Experience')}
+      ${section('skills', 'Skills', 'Add Skill Group')}
+      ${section('certifications', 'Certifications', 'Add Certification')}
+      ${section('projects', 'Projects', 'Add Project')}
+    </div>
 
     <button type="button" id="save-bottom" class="save-button">Save</button>
   </div>

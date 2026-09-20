@@ -1,5 +1,6 @@
 import { createDefaultResume } from '../resume/template';
 import { validateResumeData } from '../resume/validate';
+import { DEFAULT_SECTION_ORDER, resolveSectionOrder } from '../resume/sections';
 import type {
   CertificationEntry,
   EducationEntry,
@@ -387,6 +388,36 @@ function renderAllLists(): void {
   renderProjects();
 }
 
+function applySectionOrder(): void {
+  const container = byId<HTMLDivElement>('sections-container');
+  const order = resolveSectionOrder(resume);
+  resume.sectionOrder = order;
+  order.forEach((key) => {
+    container.appendChild(byId<HTMLElement>(`section-${key}`));
+  });
+  order.forEach((key, index) => {
+    byId<HTMLButtonElement>(`${key}-move-up`).disabled = index === 0;
+    byId<HTMLButtonElement>(`${key}-move-down`).disabled = index === order.length - 1;
+  });
+}
+
+function bindSectionControls(): void {
+  for (const key of DEFAULT_SECTION_ORDER) {
+    byId<HTMLButtonElement>(`${key}-move-up`).addEventListener('click', () => {
+      const order = resolveSectionOrder(resume);
+      moveArrayItem(order, order.indexOf(key), 'up');
+      resume.sectionOrder = order;
+      applySectionOrder();
+    });
+    byId<HTMLButtonElement>(`${key}-move-down`).addEventListener('click', () => {
+      const order = resolveSectionOrder(resume);
+      moveArrayItem(order, order.indexOf(key), 'down');
+      resume.sectionOrder = order;
+      applySectionOrder();
+    });
+  }
+}
+
 function setStatus(text: string): void {
   byId<HTMLParagraphElement>('status').textContent = text;
 }
@@ -394,6 +425,8 @@ function setStatus(text: string): void {
 function main(): void {
   bindContactAndSummary();
   renderAllLists();
+  bindSectionControls();
+  applySectionOrder();
 
   byId<HTMLButtonElement>('education-add').addEventListener('click', () => {
     resume.education.push(emptyEducationEntry());
@@ -438,6 +471,7 @@ function main(): void {
       resume = message.resume;
       bindContactAndSummary();
       renderAllLists();
+      applySectionOrder();
       setStatus('');
     } else if (message.type === 'saved') {
       setStatus('Saved.');

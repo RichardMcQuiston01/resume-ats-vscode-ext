@@ -1,4 +1,5 @@
-import type { ResumeData } from '../resume/types';
+import type { ResumeData, SectionKey } from '../resume/types';
+import { resolveSectionOrder } from '../resume/sections';
 
 function contactLine(resume: ResumeData): string {
   const parts = [
@@ -15,6 +16,78 @@ function highlightsSection(highlights: string[]): string {
   return highlights.map((highlight) => `- ${highlight}`).join('\n');
 }
 
+function experienceSection(resume: ResumeData): string | undefined {
+  if (resume.experience.length === 0) {
+    return undefined;
+  }
+  const entries = resume.experience.map((entry) => {
+    const heading = `### ${entry.jobTitle} — ${entry.employer}`;
+    const meta = [entry.location, `${entry.startDate} – ${entry.endDate}`]
+      .filter((part) => part.trim().length > 0)
+      .join(' | ');
+    const highlights = highlightsSection(entry.highlights);
+    return [heading, meta, highlights].filter((part) => part.length > 0).join('\n\n');
+  });
+  return `## Experience\n\n${entries.join('\n\n')}`;
+}
+
+function educationSection(resume: ResumeData): string | undefined {
+  if (resume.education.length === 0) {
+    return undefined;
+  }
+  const entries = resume.education.map((entry) => {
+    const heading = `### ${entry.degree}${entry.fieldOfStudy ? `, ${entry.fieldOfStudy}` : ''}`;
+    const meta = [entry.institution, entry.graduationDate, entry.gpa ? `GPA: ${entry.gpa}` : '']
+      .filter((part) => part.trim().length > 0)
+      .join(' | ');
+    return [heading, meta].filter((part) => part.length > 0).join('\n\n');
+  });
+  return `## Education\n\n${entries.join('\n\n')}`;
+}
+
+function skillsSection(resume: ResumeData): string | undefined {
+  if (resume.skills.length === 0) {
+    return undefined;
+  }
+  const entries = resume.skills.map(
+    (group) => `- **${group.category}:** ${group.skills.join(', ')}`,
+  );
+  return `## Skills\n\n${entries.join('\n')}`;
+}
+
+function certificationsSection(resume: ResumeData): string | undefined {
+  if (resume.certifications.length === 0) {
+    return undefined;
+  }
+  const entries = resume.certifications.map(
+    (entry) => `- ${entry.name} — ${entry.issuer} (${entry.issueDate})`,
+  );
+  return `## Certifications\n\n${entries.join('\n')}`;
+}
+
+function projectsSection(resume: ResumeData): string | undefined {
+  if (resume.projects.length === 0) {
+    return undefined;
+  }
+  const entries = resume.projects.map((entry) => {
+    const heading = `### ${entry.name}`;
+    const meta = [entry.description, entry.url]
+      .filter((part) => part.trim().length > 0)
+      .join(' — ');
+    const highlights = highlightsSection(entry.highlights);
+    return [heading, meta, highlights].filter((part) => part.length > 0).join('\n\n');
+  });
+  return `## Projects\n\n${entries.join('\n\n')}`;
+}
+
+const SECTION_BUILDERS: Record<SectionKey, (resume: ResumeData) => string | undefined> = {
+  experience: experienceSection,
+  education: educationSection,
+  skills: skillsSection,
+  certifications: certificationsSection,
+  projects: projectsSection,
+};
+
 export function resumeToMarkdown(resume: ResumeData): string {
   const sections: string[] = [];
 
@@ -30,53 +103,11 @@ export function resumeToMarkdown(resume: ResumeData): string {
     sections.push(`## Summary\n\n${resume.summary}`);
   }
 
-  if (resume.experience.length > 0) {
-    const entries = resume.experience.map((entry) => {
-      const heading = `### ${entry.jobTitle} — ${entry.employer}`;
-      const meta = [entry.location, `${entry.startDate} – ${entry.endDate}`]
-        .filter((part) => part.trim().length > 0)
-        .join(' | ');
-      const highlights = highlightsSection(entry.highlights);
-      return [heading, meta, highlights].filter((part) => part.length > 0).join('\n\n');
-    });
-    sections.push(`## Experience\n\n${entries.join('\n\n')}`);
-  }
-
-  if (resume.education.length > 0) {
-    const entries = resume.education.map((entry) => {
-      const heading = `### ${entry.degree}${entry.fieldOfStudy ? `, ${entry.fieldOfStudy}` : ''}`;
-      const meta = [entry.institution, entry.graduationDate, entry.gpa ? `GPA: ${entry.gpa}` : '']
-        .filter((part) => part.trim().length > 0)
-        .join(' | ');
-      return [heading, meta].filter((part) => part.length > 0).join('\n\n');
-    });
-    sections.push(`## Education\n\n${entries.join('\n\n')}`);
-  }
-
-  if (resume.skills.length > 0) {
-    const entries = resume.skills.map(
-      (group) => `- **${group.category}:** ${group.skills.join(', ')}`,
-    );
-    sections.push(`## Skills\n\n${entries.join('\n')}`);
-  }
-
-  if (resume.certifications.length > 0) {
-    const entries = resume.certifications.map(
-      (entry) => `- ${entry.name} — ${entry.issuer} (${entry.issueDate})`,
-    );
-    sections.push(`## Certifications\n\n${entries.join('\n')}`);
-  }
-
-  if (resume.projects.length > 0) {
-    const entries = resume.projects.map((entry) => {
-      const heading = `### ${entry.name}`;
-      const meta = [entry.description, entry.url]
-        .filter((part) => part.trim().length > 0)
-        .join(' — ');
-      const highlights = highlightsSection(entry.highlights);
-      return [heading, meta, highlights].filter((part) => part.length > 0).join('\n\n');
-    });
-    sections.push(`## Projects\n\n${entries.join('\n\n')}`);
+  for (const key of resolveSectionOrder(resume)) {
+    const rendered = SECTION_BUILDERS[key](resume);
+    if (rendered) {
+      sections.push(rendered);
+    }
   }
 
   return `${sections.join('\n\n')}\n`;

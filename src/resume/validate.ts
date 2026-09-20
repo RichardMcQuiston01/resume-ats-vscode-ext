@@ -7,6 +7,7 @@ import type {
   ResumeData,
   SkillGroup,
 } from './types';
+import { DEFAULT_SECTION_ORDER } from './sections';
 
 export interface ValidationResult {
   valid: boolean;
@@ -180,6 +181,24 @@ function validateProjects(value: unknown, errors: string[]): void {
   });
 }
 
+function validateSectionOrder(value: unknown, errors: string[]): void {
+  // Backward compatible: resume.json files saved before this field existed omit it,
+  // and fall back to the default order at render/export time.
+  if (value === undefined) {
+    return;
+  }
+  const isPermutation =
+    isStringArray(value) &&
+    value.length === DEFAULT_SECTION_ORDER.length &&
+    DEFAULT_SECTION_ORDER.every((key) => value.includes(key)) &&
+    new Set(value).size === DEFAULT_SECTION_ORDER.length;
+  pushIfInvalid(
+    errors,
+    isPermutation,
+    `sectionOrder must contain each of ${DEFAULT_SECTION_ORDER.join(', ')} exactly once`,
+  );
+}
+
 export function validateResumeData(data: unknown): ValidationResult {
   const errors: string[] = [];
 
@@ -190,6 +209,7 @@ export function validateResumeData(data: unknown): ValidationResult {
   const resume = data as Partial<Record<keyof ResumeData, unknown>>;
   pushIfInvalid(errors, resume.schemaVersion === 1, 'schemaVersion must be 1');
   pushIfInvalid(errors, typeof resume.summary === 'string', 'summary must be a string');
+  validateSectionOrder(resume.sectionOrder, errors);
 
   validateContact(resume.contact, errors);
   validateEducation(resume.education, errors);

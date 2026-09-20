@@ -1,5 +1,6 @@
 import { Document, HeadingLevel, Packer, Paragraph, TextRun } from 'docx';
-import type { ResumeData } from '../resume/types';
+import type { ResumeData, SectionKey } from '../resume/types';
+import { resolveSectionOrder } from '../resume/sections';
 
 function contactLine(resume: ResumeData): string {
   return [
@@ -26,6 +27,103 @@ function labeledMeta(label: string, meta: string): Paragraph {
   });
 }
 
+function experienceParagraphs(resume: ResumeData): Paragraph[] {
+  if (resume.experience.length === 0) {
+    return [];
+  }
+  const paragraphs: Paragraph[] = [
+    new Paragraph({ text: 'Experience', heading: HeadingLevel.HEADING_1 }),
+  ];
+  for (const entry of resume.experience) {
+    const meta = [entry.location, `${entry.startDate} – ${entry.endDate}`]
+      .filter((part) => part.trim().length > 0)
+      .join(' | ');
+    paragraphs.push(labeledMeta(`${entry.jobTitle} — ${entry.employer}`, meta));
+    paragraphs.push(...bulletParagraphs(entry.highlights));
+  }
+  return paragraphs;
+}
+
+function educationParagraphs(resume: ResumeData): Paragraph[] {
+  if (resume.education.length === 0) {
+    return [];
+  }
+  const paragraphs: Paragraph[] = [
+    new Paragraph({ text: 'Education', heading: HeadingLevel.HEADING_1 }),
+  ];
+  for (const entry of resume.education) {
+    const degree = entry.fieldOfStudy ? `${entry.degree}, ${entry.fieldOfStudy}` : entry.degree;
+    const meta = [entry.institution, entry.graduationDate, entry.gpa ? `GPA: ${entry.gpa}` : '']
+      .filter((part) => part.trim().length > 0)
+      .join(' | ');
+    paragraphs.push(labeledMeta(degree, meta));
+  }
+  return paragraphs;
+}
+
+function skillsParagraphs(resume: ResumeData): Paragraph[] {
+  if (resume.skills.length === 0) {
+    return [];
+  }
+  const paragraphs: Paragraph[] = [
+    new Paragraph({ text: 'Skills', heading: HeadingLevel.HEADING_1 }),
+  ];
+  for (const group of resume.skills) {
+    paragraphs.push(
+      new Paragraph({
+        children: [
+          new TextRun({ text: `${group.category}: `, bold: true }),
+          new TextRun({ text: group.skills.join(', ') }),
+        ],
+      }),
+    );
+  }
+  return paragraphs;
+}
+
+function certificationsParagraphs(resume: ResumeData): Paragraph[] {
+  if (resume.certifications.length === 0) {
+    return [];
+  }
+  const paragraphs: Paragraph[] = [
+    new Paragraph({ text: 'Certifications', heading: HeadingLevel.HEADING_1 }),
+  ];
+  for (const entry of resume.certifications) {
+    paragraphs.push(
+      new Paragraph({
+        text: `${entry.name} — ${entry.issuer} (${entry.issueDate})`,
+        bullet: { level: 0 },
+      }),
+    );
+  }
+  return paragraphs;
+}
+
+function projectsParagraphs(resume: ResumeData): Paragraph[] {
+  if (resume.projects.length === 0) {
+    return [];
+  }
+  const paragraphs: Paragraph[] = [
+    new Paragraph({ text: 'Projects', heading: HeadingLevel.HEADING_1 }),
+  ];
+  for (const entry of resume.projects) {
+    const meta = [entry.description, entry.url]
+      .filter((part) => part.trim().length > 0)
+      .join(' — ');
+    paragraphs.push(labeledMeta(entry.name, meta));
+    paragraphs.push(...bulletParagraphs(entry.highlights));
+  }
+  return paragraphs;
+}
+
+const SECTION_BUILDERS: Record<SectionKey, (resume: ResumeData) => Paragraph[]> = {
+  experience: experienceParagraphs,
+  education: educationParagraphs,
+  skills: skillsParagraphs,
+  certifications: certificationsParagraphs,
+  projects: projectsParagraphs,
+};
+
 export async function resumeToDocxBuffer(resume: ResumeData): Promise<Buffer> {
   const children: Paragraph[] = [];
 
@@ -42,63 +140,8 @@ export async function resumeToDocxBuffer(resume: ResumeData): Promise<Buffer> {
     children.push(new Paragraph({ text: resume.summary }));
   }
 
-  if (resume.experience.length > 0) {
-    children.push(new Paragraph({ text: 'Experience', heading: HeadingLevel.HEADING_1 }));
-    for (const entry of resume.experience) {
-      const meta = [entry.location, `${entry.startDate} – ${entry.endDate}`]
-        .filter((part) => part.trim().length > 0)
-        .join(' | ');
-      children.push(labeledMeta(`${entry.jobTitle} — ${entry.employer}`, meta));
-      children.push(...bulletParagraphs(entry.highlights));
-    }
-  }
-
-  if (resume.education.length > 0) {
-    children.push(new Paragraph({ text: 'Education', heading: HeadingLevel.HEADING_1 }));
-    for (const entry of resume.education) {
-      const degree = entry.fieldOfStudy ? `${entry.degree}, ${entry.fieldOfStudy}` : entry.degree;
-      const meta = [entry.institution, entry.graduationDate, entry.gpa ? `GPA: ${entry.gpa}` : '']
-        .filter((part) => part.trim().length > 0)
-        .join(' | ');
-      children.push(labeledMeta(degree, meta));
-    }
-  }
-
-  if (resume.skills.length > 0) {
-    children.push(new Paragraph({ text: 'Skills', heading: HeadingLevel.HEADING_1 }));
-    for (const group of resume.skills) {
-      children.push(
-        new Paragraph({
-          children: [
-            new TextRun({ text: `${group.category}: `, bold: true }),
-            new TextRun({ text: group.skills.join(', ') }),
-          ],
-        }),
-      );
-    }
-  }
-
-  if (resume.certifications.length > 0) {
-    children.push(new Paragraph({ text: 'Certifications', heading: HeadingLevel.HEADING_1 }));
-    for (const entry of resume.certifications) {
-      children.push(
-        new Paragraph({
-          text: `${entry.name} — ${entry.issuer} (${entry.issueDate})`,
-          bullet: { level: 0 },
-        }),
-      );
-    }
-  }
-
-  if (resume.projects.length > 0) {
-    children.push(new Paragraph({ text: 'Projects', heading: HeadingLevel.HEADING_1 }));
-    for (const entry of resume.projects) {
-      const meta = [entry.description, entry.url]
-        .filter((part) => part.trim().length > 0)
-        .join(' — ');
-      children.push(labeledMeta(entry.name, meta));
-      children.push(...bulletParagraphs(entry.highlights));
-    }
+  for (const key of resolveSectionOrder(resume)) {
+    children.push(...SECTION_BUILDERS[key](resume));
   }
 
   const document = new Document({ sections: [{ children }] });

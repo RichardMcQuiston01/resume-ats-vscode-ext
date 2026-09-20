@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Edit Resume webview**: whole sections (Education, Experience, Skills,
+  Certifications, Projects) can now be reordered with ▲/▼ buttons in each
+  section's header. The chosen order (`sectionOrder` in `resume.json`) also
+  controls the order sections appear in every exported format (Markdown,
+  HTML, DOCX, PDF). Resumes saved before this feature default to the
+  previous fixed order.
 - **Edit Resume webview**: entries within a repeatable section (Education,
   Experience, Skills, Certifications, Projects) now have up/down buttons to
   reorder them, alongside Remove.
