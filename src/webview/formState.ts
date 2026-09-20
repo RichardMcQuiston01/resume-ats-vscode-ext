@@ -54,3 +54,12 @@ export function parseSkillList(text: string): string[] {
 export function formatSkillList(skills: string[]): string {
   return skills.join(', ');
 }
+
+export function moveArrayItem<T>(array: T[], index: number, direction: 'up' | 'down'): void {
+  const targetIndex = direction === 'up' ? index - 1 : index + 1;
+  if (targetIndex < 0 || targetIndex >= array.length) {
+    return;
+  }
+  const [item] = array.splice(index, 1);
+  array.splice(targetIndex, 0, item);
+}

@@ -90,6 +90,17 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
     button:hover {
       background: var(--vscode-button-secondaryHoverBackground);
     }
+    button:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+    .entry-controls {
+      display: flex;
+      gap: 4px;
+    }
+    .entry-controls button {
+      margin-top: 0;
+    }
     button.save-button {
       background: var(--vscode-button-background);
       color: var(--vscode-button-foreground);

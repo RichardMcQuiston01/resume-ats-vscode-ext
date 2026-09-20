@@ -20,6 +20,7 @@ import {
   emptySkillGroup,
   formatHighlightsText,
   formatSkillList,
+  moveArrayItem,
   parseHighlightsText,
   parseSkillList,
 } from './formState';
@@ -72,6 +73,38 @@ function removeButton(onClick: () => void): HTMLElement {
   button.textContent = 'Remove';
   button.addEventListener('click', onClick);
   return button;
+}
+
+function entryControls(options: {
+  disableUp: boolean;
+  disableDown: boolean;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  onRemove: () => void;
+}): HTMLElement {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'entry-controls';
+
+  const upButton = document.createElement('button');
+  upButton.type = 'button';
+  upButton.textContent = '▲';
+  upButton.title = 'Move up';
+  upButton.setAttribute('aria-label', 'Move up');
+  upButton.disabled = options.disableUp;
+  upButton.addEventListener('click', options.onMoveUp);
+
+  const downButton = document.createElement('button');
+  downButton.type = 'button';
+  downButton.textContent = '▼';
+  downButton.title = 'Move down';
+  downButton.setAttribute('aria-label', 'Move down');
+  downButton.disabled = options.disableDown;
+  downButton.addEventListener('click', options.onMoveDown);
+
+  wrapper.appendChild(upButton);
+  wrapper.appendChild(downButton);
+  wrapper.appendChild(removeButton(options.onRemove));
+  return wrapper;
 }
 
 function bindContactAndSummary(): void {
@@ -130,9 +163,21 @@ function renderEducation(): void {
       }),
     );
     row.appendChild(
-      removeButton(() => {
-        resume.education.splice(index, 1);
-        renderEducation();
+      entryControls({
+        disableUp: index === 0,
+        disableDown: index === resume.education.length - 1,
+        onMoveUp: () => {
+          moveArrayItem(resume.education, index, 'up');
+          renderEducation();
+        },
+        onMoveDown: () => {
+          moveArrayItem(resume.education, index, 'down');
+          renderEducation();
+        },
+        onRemove: () => {
+          resume.education.splice(index, 1);
+          renderEducation();
+        },
       }),
     );
     list.appendChild(row);
@@ -180,9 +225,21 @@ function renderExperience(): void {
       ),
     );
     row.appendChild(
-      removeButton(() => {
-        resume.experience.splice(index, 1);
-        renderExperience();
+      entryControls({
+        disableUp: index === 0,
+        disableDown: index === resume.experience.length - 1,
+        onMoveUp: () => {
+          moveArrayItem(resume.experience, index, 'up');
+          renderExperience();
+        },
+        onMoveDown: () => {
+          moveArrayItem(resume.experience, index, 'down');
+          renderExperience();
+        },
+        onRemove: () => {
+          resume.experience.splice(index, 1);
+          renderExperience();
+        },
       }),
     );
     list.appendChild(row);
@@ -206,9 +263,21 @@ function renderSkills(): void {
       }),
     );
     row.appendChild(
-      removeButton(() => {
-        resume.skills.splice(index, 1);
-        renderSkills();
+      entryControls({
+        disableUp: index === 0,
+        disableDown: index === resume.skills.length - 1,
+        onMoveUp: () => {
+          moveArrayItem(resume.skills, index, 'up');
+          renderSkills();
+        },
+        onMoveDown: () => {
+          moveArrayItem(resume.skills, index, 'down');
+          renderSkills();
+        },
+        onRemove: () => {
+          resume.skills.splice(index, 1);
+          renderSkills();
+        },
       }),
     );
     list.appendChild(row);
@@ -237,9 +306,21 @@ function renderCertifications(): void {
       }),
     );
     row.appendChild(
-      removeButton(() => {
-        resume.certifications.splice(index, 1);
-        renderCertifications();
+      entryControls({
+        disableUp: index === 0,
+        disableDown: index === resume.certifications.length - 1,
+        onMoveUp: () => {
+          moveArrayItem(resume.certifications, index, 'up');
+          renderCertifications();
+        },
+        onMoveDown: () => {
+          moveArrayItem(resume.certifications, index, 'down');
+          renderCertifications();
+        },
+        onRemove: () => {
+          resume.certifications.splice(index, 1);
+          renderCertifications();
+        },
       }),
     );
     list.appendChild(row);
@@ -277,9 +358,21 @@ function renderProjects(): void {
       ),
     );
     row.appendChild(
-      removeButton(() => {
-        resume.projects.splice(index, 1);
-        renderProjects();
+      entryControls({
+        disableUp: index === 0,
+        disableDown: index === resume.projects.length - 1,
+        onMoveUp: () => {
+          moveArrayItem(resume.projects, index, 'up');
+          renderProjects();
+        },
+        onMoveDown: () => {
+          moveArrayItem(resume.projects, index, 'down');
+          renderProjects();
+        },
+        onRemove: () => {
+          resume.projects.splice(index, 1);
+          renderProjects();
+        },
       }),
     );
     list.appendChild(row);
