@@ -12,7 +12,9 @@ warnings as you go, and export to Markdown, HTML, DOCX, or PDF.
 - **Create New Resume** — scaffolds a `resume.json` in your workspace from a clean
   template.
 - **Edit Resume** — a webview form editor with add/remove controls for repeatable
-  sections (multiple jobs, degrees, skill groups, and so on).
+  sections (multiple jobs, degrees, skill groups, and so on), up/down controls to
+  reorder both entries and whole sections, and required-field validation that blocks
+  Save until the essentials are filled in.
 - **Live ATS compatibility checks** — missing contact info, empty sections, overlong
   or special-character-laden bullet points, and duplicate skills are flagged in the
   Problems panel as you edit.
@@ -52,13 +54,28 @@ Then open the folder in VS Code and press `F5` to launch an Extension Developmen
 2. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`).
 3. Run **Hired Hand: Create New Resume** to scaffold a `resume.json` in the workspace
    root (or open it, if one already exists).
-4. Run **Hired Hand: Edit Resume** to fill it out in a form-based webview editor, with
-   add/remove controls for repeatable sections (education, experience, skills,
-   certifications, projects). Saving validates the data before writing it back to
-   `resume.json`. While `resume.json` is open, ATS compatibility warnings appear live
-   in the **Problems** panel, updating as you edit.
+4. Run **Hired Hand: Edit Resume** to open the form-based webview editor:
+   - **Add / remove entries** — each repeatable section (Education, Experience,
+     Skills, Certifications, Projects) has its own "Add" button and a "Remove"
+     button per entry.
+   - **Reorder entries within a section** — use the ▲/▼ buttons next to Remove to
+     change the order entries appear in, e.g. to put your most recent job first.
+   - **Reorder whole sections** — use the ▲/▼ buttons in a section's header to
+     change which section comes first. This order also controls the order sections
+     appear in every exported file.
+   - **Required fields** — Full Name and Email (Contact), Job Title and Employer
+     (each Experience entry), and Institution and Degree (each Education entry) are
+     marked with `*`. A blank required field is outlined in red, and Save stays
+     disabled — with a message naming the first missing field — until it's filled
+     in, so an incomplete resume can't be saved.
+   - **Save** — available both in the sticky header and at the bottom of the form;
+     either one saves the same data. A floating "jump to top" button in the
+     bottom-right corner scrolls back to the header.
+   - While `resume.json` is open, ATS compatibility warnings appear live in the
+     **Problems** panel, updating as you edit.
 5. Run **Hired Hand: Export Resume** and pick a format — Markdown, HTML, DOCX, or
-   PDF. The export is written alongside `resume.json` (e.g. `resume.pdf`).
+   PDF. The export is written alongside `resume.json` (e.g. `resume.pdf`), with
+   sections in the order you set in the editor.
 
 The **Edit Resume** and **Export Resume** commands are also available as toolbar
 buttons in the editor title bar whenever `resume.json` is the active file.
