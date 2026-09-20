@@ -37,6 +37,7 @@ suite('validateResumeData', () => {
         portfolioUrl: 'https://jordansmith.dev',
       },
       summary: 'Experienced software engineer.',
+      sectionOrder: ['experience', 'education', 'skills', 'certifications', 'projects'],
       education: [
         {
           institution: 'State University',
@@ -71,6 +72,34 @@ suite('validateResumeData', () => {
     const result = validateResumeData(resume);
     assert.deepStrictEqual(result.errors, []);
     assert.strictEqual(result.valid, true);
+  });
+
+  test('accepts a resume with no sectionOrder for backward compatibility', () => {
+    const resume: Partial<ResumeData> = { ...createDefaultResume() };
+    delete resume.sectionOrder;
+    const result = validateResumeData(resume);
+    assert.deepStrictEqual(result.errors, []);
+    assert.strictEqual(result.valid, true);
+  });
+
+  test('rejects a sectionOrder missing a section', () => {
+    const resume = {
+      ...createDefaultResume(),
+      sectionOrder: ['experience', 'education', 'skills', 'certifications'],
+    };
+    const result = validateResumeData(resume);
+    assert.strictEqual(result.valid, false);
+    assert.ok(result.errors[0].startsWith('sectionOrder must contain each of'));
+  });
+
+  test('rejects a sectionOrder with a duplicate entry', () => {
+    const resume = {
+      ...createDefaultResume(),
+      sectionOrder: ['experience', 'experience', 'skills', 'certifications', 'projects'],
+    };
+    const result = validateResumeData(resume);
+    assert.strictEqual(result.valid, false);
+    assert.ok(result.errors[0].startsWith('sectionOrder must contain each of'));
   });
 
   test('rejects an experience entry with non-array highlights', () => {

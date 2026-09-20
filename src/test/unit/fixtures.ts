@@ -12,6 +12,7 @@ export function fullyPopulatedResume(): ResumeData {
       portfolioUrl: '',
     },
     summary: 'Experienced software engineer.',
+    sectionOrder: ['experience', 'education', 'skills', 'certifications', 'projects'],
     education: [
       {
         institution: 'State University',

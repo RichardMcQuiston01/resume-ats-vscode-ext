@@ -37,4 +37,18 @@ suite('resumeToHtml', () => {
     const html = resumeToHtml(resume);
     assert.ok(!html.includes('<h2>Certifications</h2>'));
   });
+
+  test('renders sections in the resume’s configured sectionOrder', () => {
+    const resume = fullyPopulatedResume();
+    resume.sectionOrder = ['projects', 'skills', 'certifications', 'education', 'experience'];
+    const html = resumeToHtml(resume);
+    const indices = resume.sectionOrder.map((key) => {
+      const heading = `<h2>${key.charAt(0).toUpperCase()}${key.slice(1)}</h2>`;
+      return html.indexOf(heading);
+    });
+    assert.deepStrictEqual(
+      [...indices].sort((a, b) => a - b),
+      indices,
+    );
+  });
 });

@@ -7,6 +7,7 @@ import {
   emptySkillGroup,
   formatHighlightsText,
   formatSkillList,
+  moveArrayItem,
   parseHighlightsText,
   parseSkillList,
 } from '../../webview/formState';
@@ -38,6 +39,32 @@ suite('parseSkillList / formatSkillList', () => {
   test('round-trips through format and parse', () => {
     const skills = ['TypeScript', 'Go'];
     assert.deepStrictEqual(parseSkillList(formatSkillList(skills)), skills);
+  });
+});
+
+suite('moveArrayItem', () => {
+  test('moves an item up, swapping it with its predecessor', () => {
+    const items = ['a', 'b', 'c'];
+    moveArrayItem(items, 1, 'up');
+    assert.deepStrictEqual(items, ['b', 'a', 'c']);
+  });
+
+  test('moves an item down, swapping it with its successor', () => {
+    const items = ['a', 'b', 'c'];
+    moveArrayItem(items, 1, 'down');
+    assert.deepStrictEqual(items, ['a', 'c', 'b']);
+  });
+
+  test('is a no-op when moving the first item up', () => {
+    const items = ['a', 'b', 'c'];
+    moveArrayItem(items, 0, 'up');
+    assert.deepStrictEqual(items, ['a', 'b', 'c']);
+  });
+
+  test('is a no-op when moving the last item down', () => {
+    const items = ['a', 'b', 'c'];
+    moveArrayItem(items, 2, 'down');
+    assert.deepStrictEqual(items, ['a', 'b', 'c']);
   });
 });
 

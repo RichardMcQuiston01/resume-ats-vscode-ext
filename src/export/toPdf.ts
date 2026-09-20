@@ -1,5 +1,6 @@
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib';
-import type { ResumeData } from '../resume/types';
+import type { ResumeData, SectionKey } from '../resume/types';
+import { resolveSectionOrder } from '../resume/sections';
 
 const PAGE_WIDTH = 612; // US Letter, points
 const PAGE_HEIGHT = 792;
@@ -103,6 +104,89 @@ class PdfWriter {
   }
 }
 
+function writeExperienceSection(writer: PdfWriter, resume: ResumeData): void {
+  if (resume.experience.length === 0) {
+    return;
+  }
+  writer.writeHeading('Experience');
+  for (const entry of resume.experience) {
+    const meta = [entry.location, `${entry.startDate} – ${entry.endDate}`]
+      .filter((part) => part.trim().length > 0)
+      .join('  |  ');
+    writer.writeParagraph(`${entry.jobTitle} — ${entry.employer}`, {
+      size: 11,
+      font: writer.bold,
+      gapAfter: 2,
+    });
+    if (meta.length > 0) {
+      writer.writeParagraph(meta, { size: 9, gapAfter: 2 });
+    }
+    writer.writeBullets(entry.highlights);
+  }
+}
+
+function writeEducationSection(writer: PdfWriter, resume: ResumeData): void {
+  if (resume.education.length === 0) {
+    return;
+  }
+  writer.writeHeading('Education');
+  for (const entry of resume.education) {
+    const degree = entry.fieldOfStudy ? `${entry.degree}, ${entry.fieldOfStudy}` : entry.degree;
+    const meta = [entry.institution, entry.graduationDate, entry.gpa ? `GPA: ${entry.gpa}` : '']
+      .filter((part) => part.trim().length > 0)
+      .join('  |  ');
+    writer.writeParagraph(degree, { size: 11, font: writer.bold, gapAfter: 2 });
+    if (meta.length > 0) {
+      writer.writeParagraph(meta, { size: 9, gapAfter: 6 });
+    }
+  }
+}
+
+function writeSkillsSection(writer: PdfWriter, resume: ResumeData): void {
+  if (resume.skills.length === 0) {
+    return;
+  }
+  writer.writeHeading('Skills');
+  for (const group of resume.skills) {
+    writer.writeParagraph(`${group.category}: ${group.skills.join(', ')}`);
+  }
+}
+
+function writeCertificationsSection(writer: PdfWriter, resume: ResumeData): void {
+  if (resume.certifications.length === 0) {
+    return;
+  }
+  writer.writeHeading('Certifications');
+  writer.writeBullets(
+    resume.certifications.map((entry) => `${entry.name} — ${entry.issuer} (${entry.issueDate})`),
+  );
+}
+
+function writeProjectsSection(writer: PdfWriter, resume: ResumeData): void {
+  if (resume.projects.length === 0) {
+    return;
+  }
+  writer.writeHeading('Projects');
+  for (const entry of resume.projects) {
+    const meta = [entry.description, entry.url]
+      .filter((part) => part.trim().length > 0)
+      .join(' — ');
+    writer.writeParagraph(entry.name, { size: 11, font: writer.bold, gapAfter: 2 });
+    if (meta.length > 0) {
+      writer.writeParagraph(meta, { size: 9, gapAfter: 2 });
+    }
+    writer.writeBullets(entry.highlights);
+  }
+}
+
+const SECTION_WRITERS: Record<SectionKey, (writer: PdfWriter, resume: ResumeData) => void> = {
+  experience: writeExperienceSection,
+  education: writeEducationSection,
+  skills: writeSkillsSection,
+  certifications: writeCertificationsSection,
+  projects: writeProjectsSection,
+};
+
 export async function resumeToPdfBuffer(resume: ResumeData): Promise<Buffer> {
   const writer = await PdfWriter.create();
 
@@ -125,64 +209,8 @@ export async function resumeToPdfBuffer(resume: ResumeData): Promise<Buffer> {
     writer.writeParagraph(resume.summary);
   }
 
-  if (resume.experience.length > 0) {
-    writer.writeHeading('Experience');
-    for (const entry of resume.experience) {
-      const meta = [entry.location, `${entry.startDate} – ${entry.endDate}`]
-        .filter((part) => part.trim().length > 0)
-        .join('  |  ');
-      writer.writeParagraph(`${entry.jobTitle} — ${entry.employer}`, {
-        size: 11,
-        font: writer.bold,
-        gapAfter: 2,
-      });
-      if (meta.length > 0) {
-        writer.writeParagraph(meta, { size: 9, gapAfter: 2 });
-      }
-      writer.writeBullets(entry.highlights);
-    }
-  }
-
-  if (resume.education.length > 0) {
-    writer.writeHeading('Education');
-    for (const entry of resume.education) {
-      const degree = entry.fieldOfStudy ? `${entry.degree}, ${entry.fieldOfStudy}` : entry.degree;
-      const meta = [entry.institution, entry.graduationDate, entry.gpa ? `GPA: ${entry.gpa}` : '']
-        .filter((part) => part.trim().length > 0)
-        .join('  |  ');
-      writer.writeParagraph(degree, { size: 11, font: writer.bold, gapAfter: 2 });
-      if (meta.length > 0) {
-        writer.writeParagraph(meta, { size: 9, gapAfter: 6 });
-      }
-    }
-  }
-
-  if (resume.skills.length > 0) {
-    writer.writeHeading('Skills');
-    for (const group of resume.skills) {
-      writer.writeParagraph(`${group.category}: ${group.skills.join(', ')}`);
-    }
-  }
-
-  if (resume.certifications.length > 0) {
-    writer.writeHeading('Certifications');
-    writer.writeBullets(
-      resume.certifications.map((entry) => `${entry.name} — ${entry.issuer} (${entry.issueDate})`),
-    );
-  }
-
-  if (resume.projects.length > 0) {
-    writer.writeHeading('Projects');
-    for (const entry of resume.projects) {
-      const meta = [entry.description, entry.url]
-        .filter((part) => part.trim().length > 0)
-        .join(' — ');
-      writer.writeParagraph(entry.name, { size: 11, font: writer.bold, gapAfter: 2 });
-      if (meta.length > 0) {
-        writer.writeParagraph(meta, { size: 9, gapAfter: 2 });
-      }
-      writer.writeBullets(entry.highlights);
-    }
+  for (const key of resolveSectionOrder(resume)) {
+    SECTION_WRITERS[key](writer, resume);
   }
 
   return writer.toBuffer();

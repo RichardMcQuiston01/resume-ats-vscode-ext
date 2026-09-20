@@ -42,10 +42,13 @@ export interface ProjectEntry {
   highlights: string[];
 }
 
+export type SectionKey = 'education' | 'experience' | 'skills' | 'certifications' | 'projects';
+
 export interface ResumeData {
   schemaVersion: 1;
   contact: ContactInfo;
   summary: string;
+  sectionOrder: SectionKey[];
   education: EducationEntry[];
   experience: ExperienceEntry[];
   skills: SkillGroup[];
