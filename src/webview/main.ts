@@ -1,5 +1,6 @@
 import { createDefaultResume } from '../resume/template';
 import { validateResumeData } from '../resume/validate';
+import { getRequiredFieldErrors } from '../resume/requiredFields';
 import { DEFAULT_SECTION_ORDER, resolveSectionOrder } from '../resume/sections';
 import type {
   CertificationEntry,
@@ -42,12 +43,21 @@ function byId<T extends HTMLElement>(id: string): T {
   return element as T;
 }
 
-function textField(label: string, value: string, onChange: (value: string) => void): HTMLElement {
+function textField(
+  label: string,
+  value: string,
+  onChange: (value: string) => void,
+  options: { required?: boolean } = {},
+): HTMLElement {
   const wrapper = document.createElement('label');
-  wrapper.textContent = label;
+  wrapper.textContent = options.required ? `${label} *` : label;
   const input = document.createElement('input');
   input.type = 'text';
   input.value = value;
+  if (options.required) {
+    input.dataset.required = 'true';
+    input.classList.toggle('invalid', value.trim().length === 0);
+  }
   input.addEventListener('input', () => onChange(input.value));
   wrapper.appendChild(input);
   return wrapper;
@@ -120,6 +130,9 @@ function bindContactAndSummary(): void {
   for (const field of contactFields) {
     const input = byId<HTMLInputElement>(`contact-${field}`);
     input.value = resume.contact[field];
+    if (input.dataset.required === 'true') {
+      input.classList.toggle('invalid', input.value.trim().length === 0);
+    }
     input.oninput = (): void => {
       resume.contact[field] = input.value;
     };
@@ -139,14 +152,24 @@ function renderEducation(): void {
     const row = document.createElement('div');
     row.className = 'entry';
     row.appendChild(
-      textField('Institution', entry.institution, (value) => {
-        resume.education[index].institution = value;
-      }),
+      textField(
+        'Institution',
+        entry.institution,
+        (value) => {
+          resume.education[index].institution = value;
+        },
+        { required: true },
+      ),
     );
     row.appendChild(
-      textField('Degree', entry.degree, (value) => {
-        resume.education[index].degree = value;
-      }),
+      textField(
+        'Degree',
+        entry.degree,
+        (value) => {
+          resume.education[index].degree = value;
+        },
+        { required: true },
+      ),
     );
     row.appendChild(
       textField('Field of study', entry.fieldOfStudy, (value) => {
@@ -192,14 +215,24 @@ function renderExperience(): void {
     const row = document.createElement('div');
     row.className = 'entry';
     row.appendChild(
-      textField('Job title', entry.jobTitle, (value) => {
-        resume.experience[index].jobTitle = value;
-      }),
+      textField(
+        'Job title',
+        entry.jobTitle,
+        (value) => {
+          resume.experience[index].jobTitle = value;
+        },
+        { required: true },
+      ),
     );
     row.appendChild(
-      textField('Employer', entry.employer, (value) => {
-        resume.experience[index].employer = value;
-      }),
+      textField(
+        'Employer',
+        entry.employer,
+        (value) => {
+          resume.experience[index].employer = value;
+        },
+        { required: true },
+      ),
     );
     row.appendChild(
       textField('Location', entry.location, (value) => {
@@ -422,11 +455,28 @@ function setStatus(text: string): void {
   byId<HTMLParagraphElement>('status').textContent = text;
 }
 
+function updateSaveState(): void {
+  const errors = getRequiredFieldErrors(resume);
+  const canSave = errors.length === 0;
+  byId<HTMLButtonElement>('save-top').disabled = !canSave;
+  byId<HTMLButtonElement>('save-bottom').disabled = !canSave;
+  setStatus(canSave ? '' : errors[0].message);
+}
+
 function main(): void {
   bindContactAndSummary();
   renderAllLists();
   bindSectionControls();
   applySectionOrder();
+  updateSaveState();
+
+  document.addEventListener('input', (event) => {
+    const target = event.target;
+    if (target instanceof HTMLInputElement && target.dataset.required === 'true') {
+      target.classList.toggle('invalid', target.value.trim().length === 0);
+    }
+    updateSaveState();
+  });
 
   byId<HTMLButtonElement>('education-add').addEventListener('click', () => {
     resume.education.push(emptyEducationEntry());
@@ -450,6 +500,11 @@ function main(): void {
   });
 
   const performSave = (): void => {
+    const requiredFieldErrors = getRequiredFieldErrors(resume);
+    if (requiredFieldErrors.length > 0) {
+      setStatus(`Cannot save: ${requiredFieldErrors[0].message}`);
+      return;
+    }
     const result = validateResumeData(resume);
     if (!result.valid) {
       setStatus(`Cannot save: ${result.errors[0]}`);
@@ -472,7 +527,7 @@ function main(): void {
       bindContactAndSummary();
       renderAllLists();
       applySectionOrder();
-      setStatus('');
+      updateSaveState();
     } else if (message.type === 'saved') {
       setStatus('Saved.');
     } else if (message.type === 'saveError') {

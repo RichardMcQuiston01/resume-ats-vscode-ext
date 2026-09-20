@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Edit Resume webview**: Full Name, Email, Job Title, Employer, Institution,
+  and Degree are now marked required. A missing field is outlined in red and
+  Save is disabled with a message naming the first missing field, so an
+  incomplete `resume.json` can never be written — enforced both in the
+  webview and, defense in depth, when the extension handles the save request.
 - **Edit Resume webview**: whole sections (Education, Experience, Skills,
   Certifications, Projects) can now be reordered with ▲/▼ buttons in each
   section's header. The chosen order (`sectionOrder` in `resume.json`) also

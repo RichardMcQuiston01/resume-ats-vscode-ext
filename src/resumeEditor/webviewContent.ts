@@ -87,6 +87,9 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       border: 1px solid var(--vscode-input-border);
       padding: 4px;
     }
+    input.invalid {
+      border-color: var(--vscode-inputValidation-errorBorder, #be1100);
+    }
     .entry {
       border-top: 1px solid var(--vscode-panel-border);
       padding-top: 8px;
@@ -155,8 +158,8 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
 
     <fieldset>
       <legend>Contact</legend>
-      <label>Full name<input id="contact-fullName" type="text" /></label>
-      <label>Email<input id="contact-email" type="text" /></label>
+      <label>Full name *<input id="contact-fullName" type="text" data-required="true" /></label>
+      <label>Email *<input id="contact-email" type="text" data-required="true" /></label>
       <label>Phone<input id="contact-phone" type="text" /></label>
       <label>Location<input id="contact-location" type="text" /></label>
       <label>LinkedIn URL<input id="contact-linkedInUrl" type="text" /></label>

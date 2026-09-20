@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { createDefaultResume } from '../resume/template';
 import { validateResumeData } from '../resume/validate';
+import { getRequiredFieldErrors } from '../resume/requiredFields';
 import type { ResumeData } from '../resume/types';
 import type { ExtensionToWebviewMessage, WebviewToExtensionMessage } from './messages';
 import { getWebviewHtml } from './webviewContent';
@@ -87,6 +88,15 @@ export class ResumeEditorPanel {
     const result = validateResumeData(message.resume);
     if (!result.valid) {
       this.post({ type: 'saveError', errors: result.errors });
+      return;
+    }
+
+    const requiredFieldErrors = getRequiredFieldErrors(message.resume);
+    if (requiredFieldErrors.length > 0) {
+      this.post({
+        type: 'saveError',
+        errors: requiredFieldErrors.map((error) => error.message),
+      });
       return;
     }
 
