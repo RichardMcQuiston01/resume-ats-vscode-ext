@@ -323,7 +323,7 @@ function main(): void {
     renderProjects();
   });
 
-  byId<HTMLButtonElement>('save').addEventListener('click', () => {
+  const performSave = (): void => {
     const result = validateResumeData(resume);
     if (!result.valid) {
       setStatus(`Cannot save: ${result.errors[0]}`);
@@ -331,6 +331,12 @@ function main(): void {
     }
     setStatus('Saving...');
     vscodeApi.postMessage({ type: 'saveRequest', resume });
+  };
+  byId<HTMLButtonElement>('save-top').addEventListener('click', performSave);
+  byId<HTMLButtonElement>('save-bottom').addEventListener('click', performSave);
+
+  byId<HTMLButtonElement>('jump-to-top').addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
   window.addEventListener('message', (event: MessageEvent<ExtensionToWebviewMessage>) => {

@@ -36,6 +36,24 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       font-family: var(--vscode-font-family);
       color: var(--vscode-foreground);
       padding: 0 16px 32px;
+      margin: 0;
+    }
+    #header-bar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: var(--vscode-editor-background);
+      padding: 12px 16px;
+      margin: 0 -16px 8px;
+      border-bottom: 1px solid var(--vscode-panel-border);
+    }
+    #header-bar h1 {
+      margin: 0;
+      font-size: 1.2em;
     }
     fieldset {
       margin-bottom: 16px;
@@ -46,6 +64,7 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       margin-bottom: 8px;
     }
     input[type='text'],
+    input[type='month'],
     textarea {
       width: 100%;
       box-sizing: border-box;
@@ -61,15 +80,45 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
     }
     button {
       margin-top: 8px;
+      background: var(--vscode-button-secondaryBackground);
+      color: var(--vscode-button-secondaryForeground);
+      border: 1px solid var(--vscode-button-border, transparent);
+      border-radius: 2px;
+      padding: 4px 12px;
+      cursor: pointer;
     }
-    #save {
+    button:hover {
+      background: var(--vscode-button-secondaryHoverBackground);
+    }
+    button.save-button {
+      background: var(--vscode-button-background);
+      color: var(--vscode-button-foreground);
       font-weight: bold;
+    }
+    button.save-button:hover {
+      background: var(--vscode-button-hoverBackground);
+    }
+    #jump-to-top {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      width: 40px;
+      height: 40px;
+      margin: 0;
+      padding: 0;
+      border-radius: 50%;
+      font-size: 1.1em;
+      line-height: 1;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
     }
   </style>
 </head>
 <body>
-  <div id="root">
+  <div id="header-bar">
     <h1>Hired Hand: Edit Resume</h1>
+    <button type="button" id="save-top" class="save-button">Save</button>
+  </div>
+  <div id="root">
     <p id="status" aria-live="polite"></p>
 
     <fieldset>
@@ -93,8 +142,9 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
     ${section('certifications', 'Certifications', 'Add Certification')}
     ${section('projects', 'Projects', 'Add Project')}
 
-    <button type="button" id="save">Save</button>
+    <button type="button" id="save-bottom" class="save-button">Save</button>
   </div>
+  <button type="button" id="jump-to-top" title="Jump to top" aria-label="Jump to top">&uarr;</button>
   <script nonce="${nonce}" src="${scriptUri.toString()}"></script>
 </body>
 </html>`;
