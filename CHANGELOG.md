@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Edit Resume webview**: a Save button in a sticky header (in addition to the
+  existing one at the bottom of the form) and a floating "jump to top" button.
+- Buttons in the webview are now styled with VS Code's theme colors
+  (`--vscode-button-*`), so they stay correct across light, dark, and
+  high-contrast themes instead of using unstyled default buttons.
+
 ## [0.1.0] - 2026-09-19
 
 ### Added
