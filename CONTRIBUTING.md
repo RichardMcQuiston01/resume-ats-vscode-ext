@@ -29,26 +29,33 @@ Every feature branch must:
 ## Development plan (multi-stage)
 
 The extension is built in stages, each merged to `dev` independently via its own
-feature branch(es) and PR(s).
+feature branch(es) and PR(s). Stages with independent scopes (no shared files/data
+contracts) can be worked in parallel by separate agents/contributors; stages that
+depend on an earlier stage's output start once that dependency is merged to `dev`.
 
-Stages 0–6 — project scaffold, the resume data model, the webview editor, ATS
-compatibility checks, the export pipeline, integration polish, and the `v0.1.0`
-release — are complete. See [CHANGELOG.md](./CHANGELOG.md) for what shipped in each.
+- **Stage 0 — Foundation** *(done)*: extension scaffold, lint/format config, test
+  harness, CI, Marketplace publish-on-tag workflow, baseline docs.
+- **Stage 1 — Resume data model & template** *(done)*: TypeScript types for resume
+  sections (Contact, Summary, Education, Experience, Skills, Certifications,
+  Projects), a workspace-level resume data file, and a "Create New Resume" command
+  that scaffolds it. Depends on: Stage 0.
+- **Stage 2 — Webview authoring UI** *(done)*: a webview panel with per-section forms
+  (add/remove repeatable entries such as multiple jobs or degrees) that reads and
+  writes the Stage 1 data model. Depends on: Stage 1 (data model contract).
+- **Stage 3 — ATS compatibility checks** *(done)*: a rules engine that flags
+  content-quality issues (missing sections, overlong/unsafe-character bullets,
+  duplicate skills) and surfaces warnings live in VS Code's Problems panel. Depends
+  on: Stage 1.
+- **Stage 4 — Export pipeline** *(done)*: generate the resume as Markdown, HTML,
+  DOCX, and PDF from the Stage 1 data model. Depends on: Stage 1.
+- **Stage 5 — Integration & polish** *(done)*: end-to-end flow (create → fill →
+  validate → export), command/menu wiring, extension icon and Marketplace listing
+  content, `CHANGELOG.md` update for the first release. Depends on: Stages 1–4
+  merged to `dev`.
+- **Stage 6 — Release**: merge `dev` → `staging` for QA, then `staging` → `main`, then
+  tag `v0.1.0` to publish.
 
-Stage 7 refines the Edit Resume webview, one item per PR:
-
-- **7a — Webview quick wins** *(done)*: a Save button in a sticky header and at the
-  bottom of the form, a floating "jump to top" button, and themed button colors.
-- **7b — Reorder entries within a section** *(done)*: up/down controls on each
-  repeatable entry (education, experience, skills, certifications, projects).
-- **7c — Reorder whole sections** *(done)*: up/down controls per section, backed by
-  a `sectionOrder` field that also controls the order sections appear in every
-  export.
-- **7d — Required-field validation** *(in review)*: Full Name, Email, Job
-  Title/Employer, and Institution/Degree are required; Save is blocked until
-  they're filled in.
-- **7e — Native month date picker**: a `month` input with a "Present" checkbox for
-  ongoing roles, replacing the free-text date fields.
-- **7f — Rich-text toolbar for Highlights**: Bold/Italic buttons that wrap selected
-  text in Markdown-style `**bold**`/`*italic*`, rendered as real formatting in the
-  HTML/DOCX/PDF exports.
+Stages 1, 3, and 4 depend only on the Stage 1 data model's shape (agreed up front),
+not on each other's implementation, so they can be developed concurrently on separate
+feature branches once that shape is settled; Stage 2 depends on the same data model.
+Stage 5 starts only after Stages 1–4 are merged into `dev`.
