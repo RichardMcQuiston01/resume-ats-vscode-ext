@@ -90,6 +90,17 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
     input.invalid {
       border-color: var(--vscode-inputValidation-errorBorder, #be1100);
     }
+    input:disabled {
+      opacity: 0.5;
+    }
+    label.present-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    label.present-checkbox input {
+      width: auto;
+    }
     .entry {
       border-top: 1px solid var(--vscode-panel-border);
       padding-top: 8px;

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Edit Resume webview**: Graduation date, Start date, and Issue date are now
+  native month pickers instead of free-text fields. Experience entries also
+  get a "Present" checkbox for End date, which sets it to `"Present"` and
+  disables the picker for ongoing roles.
 - **Edit Resume webview**: Full Name, Email, Job Title, Employer, Institution,
   and Degree are now marked required. A missing field is outlined in red and
   Save is disabled with a message naming the first missing field, so an
