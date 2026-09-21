@@ -9,6 +9,13 @@ function getNonce(): string {
   return text;
 }
 
+// Inline SVGs (currentColor stroke) instead of an icon font: the webview's CSP has no
+// font-src/img-src, so anything else would mean loosening it for a handful of glyphs.
+const PLUS_ICON =
+  '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 2.5v11M2.5 8h11"/></svg>';
+const SAVE_ICON =
+  '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><path d="M2 2h9l3 3v9a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M4.5 2v3.5h5V2"/><path d="M3.5 9.5h9V15h-9z"/></svg>';
+
 function section(id: string, legend: string, addLabel: string): string {
   return `
   <fieldset id="section-${id}">
@@ -20,7 +27,7 @@ function section(id: string, legend: string, addLabel: string): string {
       </span>
     </legend>
     <div id="${id}-list"></div>
-    <button type="button" id="${id}-add">${addLabel}</button>
+    <button type="button" id="${id}-add">${PLUS_ICON}<span>${addLabel}</span></button>
   </fieldset>`;
 }
 
@@ -55,6 +62,7 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       --hh-input-text: #10303f;
       --hh-input-border: #c7d3d8;
       --hh-error: #e5484d;
+      --hh-warning: #f2c94c;
     }
     body {
       font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif);
@@ -116,6 +124,9 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       font-weight: bold;
     }
     input[type='text'],
+    input[type='email'],
+    input[type='tel'],
+    input[type='url'],
     input[type='month'],
     textarea {
       width: 100%;
@@ -166,6 +177,9 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
     }
     button {
       margin-top: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       background: transparent;
       color: var(--hh-text);
       border: 1px solid var(--hh-border);
@@ -174,12 +188,20 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       cursor: pointer;
       font-family: inherit;
     }
+    button svg {
+      flex-shrink: 0;
+    }
     button:hover {
       background: var(--hh-legend-bg);
       border-color: var(--hh-orange);
     }
     button:disabled {
-      opacity: 0.4;
+      /* Explicit muted colors instead of opacity: a translucent button blends its
+         orange/white with the dark page behind it into an unreadable smear. */
+      opacity: 1;
+      background: var(--hh-panel-bg);
+      color: var(--hh-text-muted);
+      border-color: var(--hh-border);
       cursor: default;
     }
     .entry-controls {
@@ -206,6 +228,24 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       background: var(--hh-orange-hover);
       border-color: var(--hh-orange-hover);
     }
+    button.save-button:disabled {
+      background: var(--hh-panel-bg);
+      color: var(--hh-text-muted);
+      border-color: var(--hh-border);
+    }
+    .save-feedback {
+      margin: 0 0 8px;
+    }
+    .save-feedback p {
+      margin: 2px 0;
+      font-size: 0.85em;
+    }
+    .save-feedback-error {
+      color: var(--hh-error);
+    }
+    .save-feedback-warning {
+      color: var(--hh-warning);
+    }
     #jump-to-top {
       position: fixed;
       right: 24px;
@@ -230,7 +270,7 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
 <body>
   <div id="header-bar">
     <h1>Hired Hand: Edit Resume</h1>
-    <button type="button" id="save-top" class="save-button">Save</button>
+    <button type="button" id="save-top" class="save-button">${SAVE_ICON}<span>Save</span></button>
   </div>
   <div id="root">
     <p id="status" aria-live="polite"></p>
@@ -238,11 +278,11 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
     <fieldset>
       <legend>Contact</legend>
       <label>Full name <span class="required-marker">*</span><input id="contact-fullName" type="text" data-required="true" /></label>
-      <label>Email <span class="required-marker">*</span><input id="contact-email" type="text" data-required="true" /></label>
-      <label>Phone<input id="contact-phone" type="text" /></label>
+      <label>Email <span class="required-marker">*</span><input id="contact-email" type="email" data-required="true" /></label>
+      <label>Phone<input id="contact-phone" type="tel" maxlength="20" /></label>
       <label>Location<input id="contact-location" type="text" /></label>
-      <label>LinkedIn URL<input id="contact-linkedInUrl" type="text" /></label>
-      <label>Portfolio URL<input id="contact-portfolioUrl" type="text" /></label>
+      <label>LinkedIn URL<input id="contact-linkedInUrl" type="url" /></label>
+      <label>Portfolio URL<input id="contact-portfolioUrl" type="url" /></label>
     </fieldset>
 
     <fieldset>
@@ -258,7 +298,8 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       ${section('projects', 'Projects', 'Add Project')}
     </div>
 
-    <button type="button" id="save-bottom" class="save-button">Save</button>
+    <div id="save-feedback" class="save-feedback" aria-live="polite"></div>
+    <button type="button" id="save-bottom" class="save-button">${SAVE_ICON}<span>Save</span></button>
   </div>
   <button type="button" id="jump-to-top" title="Jump to top" aria-label="Jump to top">&uarr;</button>
   <script nonce="${nonce}" src="${scriptUri.toString()}"></script>
