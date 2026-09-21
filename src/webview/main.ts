@@ -63,6 +63,57 @@ function textField(
   return wrapper;
 }
 
+function monthField(label: string, value: string, onChange: (value: string) => void): HTMLElement {
+  const wrapper = document.createElement('label');
+  wrapper.textContent = label;
+  const input = document.createElement('input');
+  input.type = 'month';
+  input.value = value;
+  input.addEventListener('input', () => onChange(input.value));
+  wrapper.appendChild(input);
+  return wrapper;
+}
+
+function endDateField(index: number): HTMLElement {
+  const container = document.createElement('div');
+
+  const monthLabel = document.createElement('label');
+  monthLabel.textContent = 'End date';
+  const monthInput = document.createElement('input');
+  monthInput.type = 'month';
+
+  const presentLabel = document.createElement('label');
+  presentLabel.className = 'present-checkbox';
+  const presentCheckbox = document.createElement('input');
+  presentCheckbox.type = 'checkbox';
+
+  const isPresent = resume.experience[index].endDate === 'Present';
+  monthInput.value = isPresent ? '' : resume.experience[index].endDate;
+  monthInput.disabled = isPresent;
+  presentCheckbox.checked = isPresent;
+
+  monthInput.addEventListener('input', () => {
+    resume.experience[index].endDate = monthInput.value;
+  });
+  presentCheckbox.addEventListener('change', () => {
+    if (presentCheckbox.checked) {
+      resume.experience[index].endDate = 'Present';
+      monthInput.value = '';
+      monthInput.disabled = true;
+    } else {
+      resume.experience[index].endDate = '';
+      monthInput.disabled = false;
+    }
+  });
+
+  monthLabel.appendChild(monthInput);
+  presentLabel.appendChild(presentCheckbox);
+  presentLabel.appendChild(document.createTextNode(' Present'));
+  container.appendChild(monthLabel);
+  container.appendChild(presentLabel);
+  return container;
+}
+
 function textAreaField(
   label: string,
   value: string,
@@ -177,7 +228,7 @@ function renderEducation(): void {
       }),
     );
     row.appendChild(
-      textField('Graduation date', entry.graduationDate, (value) => {
+      monthField('Graduation date', entry.graduationDate, (value) => {
         resume.education[index].graduationDate = value;
       }),
     );
@@ -240,15 +291,11 @@ function renderExperience(): void {
       }),
     );
     row.appendChild(
-      textField('Start date', entry.startDate, (value) => {
+      monthField('Start date', entry.startDate, (value) => {
         resume.experience[index].startDate = value;
       }),
     );
-    row.appendChild(
-      textField('End date', entry.endDate, (value) => {
-        resume.experience[index].endDate = value;
-      }),
-    );
+    row.appendChild(endDateField(index));
     row.appendChild(
       textAreaField(
         'Highlights (one per line)',
@@ -335,7 +382,7 @@ function renderCertifications(): void {
       }),
     );
     row.appendChild(
-      textField('Issue date', entry.issueDate, (value) => {
+      monthField('Issue date', entry.issueDate, (value) => {
         resume.certifications[index].issueDate = value;
       }),
     );
