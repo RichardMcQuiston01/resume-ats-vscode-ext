@@ -38,9 +38,28 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
   />
   <title>Hired Hand: Edit Resume</title>
   <style nonce="${nonce}">
+    :root {
+      /* Hired Hand brand palette — matches the other Hired Hand products
+         (dark navy chrome, orange accent) rather than the editor theme. */
+      --hh-bg: #10303f;
+      --hh-bg-header: #0b222c;
+      --hh-panel-bg: #15394a;
+      --hh-legend-bg: #1d4e62;
+      --hh-border: #24576b;
+      --hh-text: #dce7ec;
+      --hh-text-strong: #ffffff;
+      --hh-text-muted: #9fb8c3;
+      --hh-orange: #f0801e;
+      --hh-orange-hover: #d96f14;
+      --hh-input-bg: #ffffff;
+      --hh-input-text: #10303f;
+      --hh-input-border: #c7d3d8;
+      --hh-error: #e5484d;
+    }
     body {
-      font-family: var(--vscode-font-family);
-      color: var(--vscode-foreground);
+      font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif);
+      background: var(--hh-bg);
+      color: var(--hh-text);
       padding: 0 16px 32px;
       margin: 0;
     }
@@ -52,43 +71,66 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      background: var(--vscode-editor-background);
+      background: var(--hh-bg-header);
       padding: 12px 16px;
-      margin: 0 -16px 8px;
-      border-bottom: 1px solid var(--vscode-panel-border);
+      margin: 0 -16px 16px;
+      border-bottom: 2px solid var(--hh-orange);
     }
     #header-bar h1 {
       margin: 0;
-      font-size: 1.2em;
+      font-size: 1.1em;
+      color: var(--hh-text-strong);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
     }
     fieldset {
       margin-bottom: 16px;
-      border: 1px solid var(--vscode-panel-border);
+      border: 1px solid var(--hh-border);
+      border-radius: 4px;
+      background: var(--hh-panel-bg);
+      padding: 0 12px 12px;
     }
     legend {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      width: 100%;
-      gap: 8px;
-      padding: 0 4px;
+      width: calc(100% + 24px);
+      margin: 0 -12px 12px;
+      padding: 8px 12px;
+      background: var(--hh-legend-bg);
+      color: var(--hh-text-strong);
+      border-radius: 3px 3px 0 0;
+      text-transform: uppercase;
+      font-size: 0.82em;
+      letter-spacing: 0.05em;
+      font-weight: 600;
     }
     label {
       display: block;
       margin-bottom: 8px;
+      color: var(--hh-text-muted);
+      font-size: 0.9em;
+    }
+    .required-marker {
+      color: var(--hh-orange);
+      font-weight: bold;
     }
     input[type='text'],
     input[type='month'],
     textarea {
       width: 100%;
       box-sizing: border-box;
-      background: var(--vscode-input-background);
-      color: var(--vscode-input-foreground);
-      border: 1px solid var(--vscode-input-border);
-      padding: 4px;
+      background: var(--hh-input-bg);
+      color: var(--hh-input-text);
+      border: 1px solid var(--hh-input-border);
+      border-radius: 3px;
+      padding: 6px 8px;
+      font-size: 1em;
+      margin-top: 2px;
     }
     input.invalid {
-      border-color: var(--vscode-inputValidation-errorBorder, #be1100);
+      border-color: var(--hh-error);
+      border-width: 2px;
     }
     input:disabled {
       opacity: 0.5;
@@ -97,6 +139,7 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       display: flex;
       align-items: center;
       gap: 6px;
+      color: var(--hh-text);
     }
     label.present-checkbox input {
       width: auto;
@@ -117,21 +160,23 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       font-style: italic;
     }
     .entry {
-      border-top: 1px solid var(--vscode-panel-border);
+      border-top: 1px solid var(--hh-border);
       padding-top: 8px;
       margin-top: 8px;
     }
     button {
       margin-top: 8px;
-      background: var(--vscode-button-secondaryBackground);
-      color: var(--vscode-button-secondaryForeground);
-      border: 1px solid var(--vscode-button-border, transparent);
-      border-radius: 2px;
+      background: transparent;
+      color: var(--hh-text);
+      border: 1px solid var(--hh-border);
+      border-radius: 3px;
       padding: 4px 12px;
       cursor: pointer;
+      font-family: inherit;
     }
     button:hover {
-      background: var(--vscode-button-secondaryHoverBackground);
+      background: var(--hh-legend-bg);
+      border-color: var(--hh-orange);
     }
     button:disabled {
       opacity: 0.4;
@@ -152,12 +197,14 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       margin-top: 0;
     }
     button.save-button {
-      background: var(--vscode-button-background);
-      color: var(--vscode-button-foreground);
+      background: var(--hh-orange);
+      color: #ffffff;
+      border-color: var(--hh-orange);
       font-weight: bold;
     }
     button.save-button:hover {
-      background: var(--vscode-button-hoverBackground);
+      background: var(--hh-orange-hover);
+      border-color: var(--hh-orange-hover);
     }
     #jump-to-top {
       position: fixed;
@@ -170,7 +217,13 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       border-radius: 50%;
       font-size: 1.1em;
       line-height: 1;
+      background: var(--hh-orange);
+      color: #ffffff;
+      border-color: var(--hh-orange);
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    }
+    #jump-to-top:hover {
+      background: var(--hh-orange-hover);
     }
   </style>
 </head>
@@ -184,8 +237,8 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
 
     <fieldset>
       <legend>Contact</legend>
-      <label>Full name *<input id="contact-fullName" type="text" data-required="true" /></label>
-      <label>Email *<input id="contact-email" type="text" data-required="true" /></label>
+      <label>Full name <span class="required-marker">*</span><input id="contact-fullName" type="text" data-required="true" /></label>
+      <label>Email <span class="required-marker">*</span><input id="contact-email" type="text" data-required="true" /></label>
       <label>Phone<input id="contact-phone" type="text" /></label>
       <label>Location<input id="contact-location" type="text" /></label>
       <label>LinkedIn URL<input id="contact-linkedInUrl" type="text" /></label>

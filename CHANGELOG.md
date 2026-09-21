@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Edit Resume webview**: restyled to match the other Hired Hand products'
+  branding (dark navy chrome with an orange accent) instead of following the
+  editor's own color theme. Required-field markers and the floating
+  jump-to-top button now use the brand orange as well.
 - **Edit Resume webview**: a Bold/Italic toolbar above each Highlights field
   wraps the selected text with Markdown-style `**bold**`/`*italic*` markers.
   The Markdown export already rendered these as-is; HTML, DOCX, and PDF
