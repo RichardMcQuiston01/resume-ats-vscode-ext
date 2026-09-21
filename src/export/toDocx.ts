@@ -1,6 +1,7 @@
 import { Document, HeadingLevel, Packer, Paragraph, TextRun } from 'docx';
 import type { ResumeData, SectionKey } from '../resume/types';
 import { resolveSectionOrder } from '../resume/sections';
+import { parseMarkdownRuns } from '../resume/richText';
 
 function contactLine(resume: ResumeData): string {
   return [
@@ -15,7 +16,15 @@ function contactLine(resume: ResumeData): string {
 }
 
 function bulletParagraphs(highlights: string[]): Paragraph[] {
-  return highlights.map((highlight) => new Paragraph({ text: highlight, bullet: { level: 0 } }));
+  return highlights.map(
+    (highlight) =>
+      new Paragraph({
+        bullet: { level: 0 },
+        children: parseMarkdownRuns(highlight).map(
+          (run) => new TextRun({ text: run.text, bold: run.bold, italics: run.italic }),
+        ),
+      }),
+  );
 }
 
 function labeledMeta(label: string, meta: string): Paragraph {

@@ -16,4 +16,11 @@ suite('resumeToDocxBuffer', () => {
     const buffer = await resumeToDocxBuffer(createDefaultResume());
     assert.ok(buffer.length > 0);
   });
+
+  test('succeeds for a highlight containing Markdown-style bold/italic markup', async () => {
+    const resume = fullyPopulatedResume();
+    resume.experience[0].highlights = ['Cut **costs** by *15%* company-wide'];
+    const buffer = await resumeToDocxBuffer(resume);
+    assert.ok(buffer.length > 0);
+  });
 });

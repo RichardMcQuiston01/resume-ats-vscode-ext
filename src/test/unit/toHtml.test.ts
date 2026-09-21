@@ -38,6 +38,21 @@ suite('resumeToHtml', () => {
     assert.ok(!html.includes('<h2>Certifications</h2>'));
   });
 
+  test('renders Markdown-style bold/italic highlights as real <strong>/<em> tags', () => {
+    const resume = fullyPopulatedResume();
+    resume.experience[0].highlights = ['Cut **costs** by *15%* company-wide'];
+    const html = resumeToHtml(resume);
+    assert.ok(html.includes('<li>Cut <strong>costs</strong> by <em>15%</em> company-wide</li>'));
+  });
+
+  test('escapes HTML-significant characters within highlight runs', () => {
+    const resume = fullyPopulatedResume();
+    resume.experience[0].highlights = ['Used **<script>** tags'];
+    const html = resumeToHtml(resume);
+    assert.ok(!html.includes('<script>'));
+    assert.ok(html.includes('<strong>&lt;script&gt;</strong>'));
+  });
+
   test('renders sections in the resume’s configured sectionOrder', () => {
     const resume = fullyPopulatedResume();
     resume.sectionOrder = ['projects', 'skills', 'certifications', 'education', 'experience'];

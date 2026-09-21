@@ -101,6 +101,21 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
     label.present-checkbox input {
       width: auto;
     }
+    .rich-text-toolbar {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+    .rich-text-toolbar button {
+      margin-top: 0;
+      min-width: 28px;
+    }
+    .rich-text-bold {
+      font-weight: bold;
+    }
+    .rich-text-italic {
+      font-style: italic;
+    }
     .entry {
       border-top: 1px solid var(--vscode-panel-border);
       padding-top: 8px;
