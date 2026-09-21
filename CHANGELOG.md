@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Edit Resume webview**: Email, Phone, LinkedIn URL, and Portfolio URL now use
+  native `email`/`tel`/`url` input fields instead of plain text, and Phone is capped
+  at 20 characters. A small Errors/Warnings summary above the bottom Save button
+  lists missing required fields (Errors, blocking Save) and malformed
+  email/phone/LinkedIn/Portfolio values (Warnings, non-blocking) as you type.
+- **Edit Resume webview**: Save, Add, and Remove buttons now show an icon
+  alongside their label.
 - **Edit Resume webview**: restyled to match the other Hired Hand products'
   branding (dark navy chrome with an orange accent) instead of following the
   editor's own color theme. Required-field markers and the floating

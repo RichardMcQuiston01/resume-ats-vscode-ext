@@ -1,6 +1,7 @@
 import { createDefaultResume } from '../resume/template';
 import { validateResumeData } from '../resume/validate';
-import { getRequiredFieldErrors } from '../resume/requiredFields';
+import { getRequiredFieldErrors, type RequiredFieldError } from '../resume/requiredFields';
+import { getFormatWarnings } from '../resume/formatWarnings';
 import { DEFAULT_SECTION_ORDER, resolveSectionOrder } from '../resume/sections';
 import type {
   CertificationEntry,
@@ -188,10 +189,13 @@ function highlightsField(
   return wrapper;
 }
 
+const TRASH_ICON =
+  '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h11M6 4V2.5h4V4M3.5 4l.6 9.5a1 1 0 0 0 1 .9h5.8a1 1 0 0 0 1-.9L12.5 4"/><path d="M6.5 6.5v5M9.5 6.5v5"/></svg>';
+
 function removeButton(onClick: () => void): HTMLElement {
   const button = document.createElement('button');
   button.type = 'button';
-  button.textContent = 'Remove';
+  button.innerHTML = `${TRASH_ICON}<span>Remove</span>`;
   button.addEventListener('click', onClick);
   return button;
 }
@@ -561,12 +565,31 @@ function setStatus(text: string): void {
   byId<HTMLParagraphElement>('status').textContent = text;
 }
 
+function renderSaveFeedback(errors: RequiredFieldError[], warnings: string[]): void {
+  const container = byId<HTMLDivElement>('save-feedback');
+  container.innerHTML = '';
+  for (const error of errors) {
+    const line = document.createElement('p');
+    line.className = 'save-feedback-error';
+    line.textContent = `Error: ${error.message}`;
+    container.appendChild(line);
+  }
+  for (const warning of warnings) {
+    const line = document.createElement('p');
+    line.className = 'save-feedback-warning';
+    line.textContent = `Warning: ${warning}`;
+    container.appendChild(line);
+  }
+}
+
 function updateSaveState(): void {
   const errors = getRequiredFieldErrors(resume);
+  const warnings = getFormatWarnings(resume);
   const canSave = errors.length === 0;
   byId<HTMLButtonElement>('save-top').disabled = !canSave;
   byId<HTMLButtonElement>('save-bottom').disabled = !canSave;
   setStatus(canSave ? '' : errors[0].message);
+  renderSaveFeedback(errors, warnings);
 }
 
 function main(): void {
