@@ -24,4 +24,12 @@ suite('resumeToPdfBuffer', () => {
     const buffer = await resumeToPdfBuffer(resume);
     assert.ok(buffer.length > 0);
   });
+
+  test('succeeds for a highlight containing Markdown-style bold/italic markup', async () => {
+    const resume = fullyPopulatedResume();
+    resume.experience[0].highlights = ['Cut **costs** by *15%* company-wide'];
+    const buffer = await resumeToPdfBuffer(resume);
+    assert.ok(buffer.length > 0);
+    assert.strictEqual(buffer.subarray(0, 5).toString('latin1'), '%PDF-');
+  });
 });

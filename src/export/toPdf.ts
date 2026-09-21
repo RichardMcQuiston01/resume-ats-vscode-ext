@@ -1,6 +1,7 @@
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib';
 import type { ResumeData, SectionKey } from '../resume/types';
 import { resolveSectionOrder } from '../resume/sections';
+import { parseMarkdownRuns, type RichTextRun } from '../resume/richText';
 
 const PAGE_WIDTH = 612; // US Letter, points
 const PAGE_HEIGHT = 792;
@@ -19,6 +20,7 @@ interface ParagraphOptions {
 class PdfWriter {
   regular!: PDFFont;
   bold!: PDFFont;
+  italic!: PDFFont;
   private doc!: PDFDocument;
   private page!: PDFPage;
   private y = 0;
@@ -28,6 +30,7 @@ class PdfWriter {
     writer.doc = await PDFDocument.create();
     writer.regular = await writer.doc.embedFont(StandardFonts.Helvetica);
     writer.bold = await writer.doc.embedFont(StandardFonts.HelveticaBold);
+    writer.italic = await writer.doc.embedFont(StandardFonts.HelveticaOblique);
     writer.addPage();
     return writer;
   }
@@ -98,6 +101,89 @@ class PdfWriter {
     }
   }
 
+  private runFont(run: RichTextRun): PDFFont {
+    if (run.bold) {
+      return this.bold;
+    }
+    if (run.italic) {
+      return this.italic;
+    }
+    return this.regular;
+  }
+
+  // Word-wraps a sequence of differently-styled runs on one logical paragraph, since
+  // drawText only places a single run of same-font text at a time.
+  private writeRuns(runs: RichTextRun[], options: ParagraphOptions = {}): void {
+    const size = options.size ?? 10;
+    const indent = options.indent ?? 0;
+    const lineHeight = size * 1.3;
+    const maxWidth = CONTENT_WIDTH - indent;
+
+    interface Word {
+      text: string;
+      font: PDFFont;
+    }
+    const words: Word[] = [];
+    for (const run of runs) {
+      const font = this.runFont(run);
+      for (const word of run.text.split(/\s+/).filter((part) => part.length > 0)) {
+        words.push({ text: word, font });
+      }
+    }
+    if (words.length === 0) {
+      return;
+    }
+
+    const spaceWidth = this.regular.widthOfTextAtSize(' ', size);
+    let line: Word[] = [];
+    let lineWidth = 0;
+
+    const flushLine = (): void => {
+      if (line.length === 0) {
+        return;
+      }
+      this.ensureSpace(lineHeight);
+      let x = MARGIN + indent;
+      for (const word of line) {
+        this.page.drawText(word.text, { x, y: this.y, size, font: word.font, color: rgb(0, 0, 0) });
+        x += word.font.widthOfTextAtSize(word.text, size) + spaceWidth;
+      }
+      this.y -= lineHeight;
+      line = [];
+      lineWidth = 0;
+    };
+
+    for (const word of words) {
+      const wordWidth = word.font.widthOfTextAtSize(word.text, size);
+      const additional = (line.length > 0 ? spaceWidth : 0) + wordWidth;
+      if (lineWidth + additional > maxWidth && line.length > 0) {
+        flushLine();
+        lineWidth = wordWidth;
+        line = [word];
+      } else {
+        lineWidth += additional;
+        line.push(word);
+      }
+    }
+    flushLine();
+    this.y -= options.gapAfter ?? 4;
+  }
+
+  // Like writeBullets, but each item may contain **bold**/*italic* Markdown-style
+  // runs (from the webview's Highlights toolbar) rendered as real bold/italic text.
+  writeRichBullets(items: string[]): void {
+    for (const item of items) {
+      if (item.trim().length === 0) {
+        continue;
+      }
+      const runs: RichTextRun[] = [
+        { text: '• ', bold: false, italic: false },
+        ...parseMarkdownRuns(item),
+      ];
+      this.writeRuns(runs, { indent: 10, gapAfter: 2 });
+    }
+  }
+
   async toBuffer(): Promise<Buffer> {
     const bytes = await this.doc.save();
     return Buffer.from(bytes);
@@ -121,7 +207,7 @@ function writeExperienceSection(writer: PdfWriter, resume: ResumeData): void {
     if (meta.length > 0) {
       writer.writeParagraph(meta, { size: 9, gapAfter: 2 });
     }
-    writer.writeBullets(entry.highlights);
+    writer.writeRichBullets(entry.highlights);
   }
 }
 
@@ -175,7 +261,7 @@ function writeProjectsSection(writer: PdfWriter, resume: ResumeData): void {
     if (meta.length > 0) {
       writer.writeParagraph(meta, { size: 9, gapAfter: 2 });
     }
-    writer.writeBullets(entry.highlights);
+    writer.writeRichBullets(entry.highlights);
   }
 }
 

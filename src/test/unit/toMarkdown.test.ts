@@ -33,6 +33,13 @@ suite('resumeToMarkdown', () => {
     assert.ok(!markdown.includes('## Certifications'));
   });
 
+  test('passes Markdown-style bold/italic highlights through unchanged', () => {
+    const resume = fullyPopulatedResume();
+    resume.experience[0].highlights = ['Cut **costs** by *15%* company-wide'];
+    const markdown = resumeToMarkdown(resume);
+    assert.ok(markdown.includes('- Cut **costs** by *15%* company-wide'));
+  });
+
   test('renders sections in the resume’s configured sectionOrder', () => {
     const resume = fullyPopulatedResume();
     resume.sectionOrder = ['projects', 'skills', 'certifications', 'education', 'experience'];

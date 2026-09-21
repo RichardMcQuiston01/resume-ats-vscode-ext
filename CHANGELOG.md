@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Edit Resume webview**: a Bold/Italic toolbar above each Highlights field
+  wraps the selected text with Markdown-style `**bold**`/`*italic*` markers.
+  The Markdown export already rendered these as-is; HTML, DOCX, and PDF
+  exports now parse that markup and render real bold/italic text.
 - **Edit Resume webview**: Graduation date, Start date, and Issue date are now
   native month pickers instead of free-text fields. Experience entries also
   get a "Present" checkbox for End date, which sets it to `"Present"` and

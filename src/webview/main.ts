@@ -129,6 +129,59 @@ function textAreaField(
   return wrapper;
 }
 
+function wrapSelection(textarea: HTMLTextAreaElement, marker: string): void {
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const before = textarea.value.slice(0, start);
+  const selected = textarea.value.slice(start, end);
+  const after = textarea.value.slice(end);
+  textarea.value = `${before}${marker}${selected}${marker}${after}`;
+  textarea.selectionStart = start + marker.length;
+  textarea.selectionEnd = end + marker.length;
+  textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  textarea.focus();
+}
+
+function highlightsField(
+  label: string,
+  value: string,
+  onChange: (value: string) => void,
+): HTMLElement {
+  const wrapper = document.createElement('div');
+
+  const field = textAreaField(label, value, onChange);
+  const textarea = field.querySelector('textarea');
+  if (!textarea) {
+    throw new Error('Hired Hand: expected textAreaField to contain a textarea');
+  }
+
+  const toolbar = document.createElement('div');
+  toolbar.className = 'rich-text-toolbar';
+
+  const boldButton = document.createElement('button');
+  boldButton.type = 'button';
+  boldButton.className = 'rich-text-bold';
+  boldButton.textContent = 'B';
+  boldButton.title = 'Bold selected text';
+  boldButton.setAttribute('aria-label', 'Bold selected text');
+  boldButton.addEventListener('click', () => wrapSelection(textarea, '**'));
+
+  const italicButton = document.createElement('button');
+  italicButton.type = 'button';
+  italicButton.className = 'rich-text-italic';
+  italicButton.textContent = 'I';
+  italicButton.title = 'Italicize selected text';
+  italicButton.setAttribute('aria-label', 'Italicize selected text');
+  italicButton.addEventListener('click', () => wrapSelection(textarea, '*'));
+
+  toolbar.appendChild(boldButton);
+  toolbar.appendChild(italicButton);
+
+  wrapper.appendChild(toolbar);
+  wrapper.appendChild(field);
+  return wrapper;
+}
+
 function removeButton(onClick: () => void): HTMLElement {
   const button = document.createElement('button');
   button.type = 'button';
@@ -297,7 +350,7 @@ function renderExperience(): void {
     );
     row.appendChild(endDateField(index));
     row.appendChild(
-      textAreaField(
+      highlightsField(
         'Highlights (one per line)',
         formatHighlightsText(entry.highlights),
         (value) => {
@@ -430,7 +483,7 @@ function renderProjects(): void {
       }),
     );
     row.appendChild(
-      textAreaField(
+      highlightsField(
         'Highlights (one per line)',
         formatHighlightsText(entry.highlights),
         (value) => {

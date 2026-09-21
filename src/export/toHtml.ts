@@ -1,5 +1,6 @@
 import type { ResumeData, SectionKey } from '../resume/types';
 import { resolveSectionOrder } from '../resume/sections';
+import { parseMarkdownRuns } from '../resume/richText';
 
 function escapeHtml(text: string): string {
   return text
@@ -10,11 +11,26 @@ function escapeHtml(text: string): string {
     .replace(/'/g, '&#39;');
 }
 
+function highlightText(text: string): string {
+  return parseMarkdownRuns(text)
+    .map((run) => {
+      const escaped = escapeHtml(run.text);
+      if (run.bold) {
+        return `<strong>${escaped}</strong>`;
+      }
+      if (run.italic) {
+        return `<em>${escaped}</em>`;
+      }
+      return escaped;
+    })
+    .join('');
+}
+
 function highlightsList(highlights: string[]): string {
   if (highlights.length === 0) {
     return '';
   }
-  const items = highlights.map((highlight) => `<li>${escapeHtml(highlight)}</li>`).join('');
+  const items = highlights.map((highlight) => `<li>${highlightText(highlight)}</li>`).join('');
   return `<ul>${items}</ul>`;
 }
 
