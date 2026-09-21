@@ -11,14 +11,24 @@ warnings as you go, and export to Markdown, HTML, DOCX, or PDF.
 
 - **Create New Resume** — scaffolds a `resume.json` in your workspace from a clean
   template.
-- **Edit Resume** — a webview form editor with add/remove controls for repeatable
-  sections (multiple jobs, degrees, skill groups, and so on).
+- **Edit Resume** — a webview form editor, styled to match Hired Hand's branding, with:
+  - add/remove/reorder controls for repeatable entries (multiple jobs, degrees, skill
+    groups, and so on) and for whole sections.
+  - required-field validation (Full Name, Email, Job Title/Employer,
+    Institution/Degree) that blocks Save and names the first missing field until fixed.
+  - native month-picker fields for graduation, start/end, and issue dates, with a
+    "Present" checkbox for ongoing roles.
+  - a Bold/Italic toolbar for Highlights bullets, using Markdown-style formatting that
+    carries through to every exported format.
+  - a Save button in a sticky header and a floating jump-to-top button, for quick
+    editing of long resumes.
 - **Live ATS compatibility checks** — missing contact info, empty sections, overlong
   or special-character-laden bullet points, and duplicate skills are flagged in the
   Problems panel as you edit.
 - **Export Resume** — one command, four formats: Markdown, HTML, DOCX, and PDF, all
   single-column with no tables or images, so the layout an ATS parser sees matches
-  what you built.
+  what you built. Bold/italic Highlights formatting renders as real bold/italic text
+  in every format.
 
 ## Status
 

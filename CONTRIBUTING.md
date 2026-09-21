@@ -52,10 +52,28 @@ depend on an earlier stage's output start once that dependency is merged to `dev
   validate → export), command/menu wiring, extension icon and Marketplace listing
   content, `CHANGELOG.md` update for the first release. Depends on: Stages 1–4
   merged to `dev`.
-- **Stage 6 — Release**: merge `dev` → `staging` for QA, then `staging` → `main`, then
-  tag `v0.1.0` to publish.
+- **Stage 6 — Release** *(done)*: merged `dev` → `staging` for QA, then `staging` →
+  `main`, then tagged `v0.1.0` to publish.
+- **Stage 7 — Edit Resume webview feedback** *(done, unreleased)*: a round of
+  usability fixes to the webview editor from hands-on use, each its own feature
+  branch/PR into `dev`. Depends on: Stage 6 (post-v0.1.0 feedback).
+  - **7a**: sticky-header Save button, floating jump-to-top button, VS Code
+    theme-colored buttons.
+  - **7b**: up/down reorder controls for entries within a repeatable section.
+  - **7c**: up/down reorder controls for whole sections (`sectionOrder`, respected by
+    every exporter).
+  - **7d**: required-field validation (Full Name, Email, Job Title/Employer,
+    Institution/Degree) blocking Save, enforced in both the webview and the save
+    handler.
+  - **7e**: native month-picker date fields, with a "Present" checkbox for ongoing
+    roles.
+  - **7f**: a Bold/Italic toolbar for Highlights, using Markdown-style markup rendered
+    as real bold/italic text in HTML, DOCX, and PDF exports.
+  - Restyled the webview to Hired Hand's own brand colors (dark navy, orange accent)
+    instead of following the editor's theme.
 
 Stages 1, 3, and 4 depend only on the Stage 1 data model's shape (agreed up front),
 not on each other's implementation, so they can be developed concurrently on separate
 feature branches once that shape is settled; Stage 2 depends on the same data model.
-Stage 5 starts only after Stages 1–4 are merged into `dev`.
+Stage 5 starts only after Stages 1–4 are merged into `dev`. Stage 7's sub-items are
+independent webview-only changes and were developed sequentially against `dev`.
