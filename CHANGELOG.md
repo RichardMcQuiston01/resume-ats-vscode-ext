@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Edit Resume webview**: restyled to match the other Hired Hand products'
+  branding (dark navy chrome with an orange accent) instead of following the
+  editor's own color theme. Required-field markers and the floating
+  jump-to-top button now use the brand orange as well.
 - **Edit Resume webview**: a Bold/Italic toolbar above each Highlights field
   wraps the selected text with Markdown-style `**bold**`/`*italic*` markers.
   The Markdown export already rendered these as-is; HTML, DOCX, and PDF
@@ -36,6 +40,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Buttons in the webview are now styled with VS Code's theme colors
   (`--vscode-button-*`), so they stay correct across light, dark, and
   high-contrast themes instead of using unstyled default buttons.
+
+### Security
+
+- Bumped dev/build tooling (`esbuild`, `@vscode/vsce`, `@vscode/test-cli`,
+  `mocha`) to their latest versions, resolving 3 of the 7 `npm audit`
+  findings (esbuild's dev-server request vulnerability; `markdown-it` /
+  `linkify-it` ReDoS pulled in by an old `vsce`; `serialize-javascript`'s RCE
+  and DoS advisories pulled in by an old `mocha`). None of these packages
+  are runtime dependencies — they never ship in the packaged extension —
+  but keeping them current avoids exposure on contributors' and CI
+  machines. The remaining 4 findings live inside `@vscode/test-cli`'s own
+  vendored `mocha`; `@vscode/test-cli` is already at its latest published
+  version (`0.0.15`) and has no newer release that pulls a fixed `mocha`,
+  so this is blocked on an upstream update.
 
 ## [0.1.0] - 2026-09-19
 

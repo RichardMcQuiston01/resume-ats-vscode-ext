@@ -50,7 +50,13 @@ function textField(
   options: { required?: boolean } = {},
 ): HTMLElement {
   const wrapper = document.createElement('label');
-  wrapper.textContent = options.required ? `${label} *` : label;
+  wrapper.textContent = label;
+  if (options.required) {
+    const marker = document.createElement('span');
+    marker.className = 'required-marker';
+    marker.textContent = ' *';
+    wrapper.appendChild(marker);
+  }
   const input = document.createElement('input');
   input.type = 'text';
   input.value = value;
