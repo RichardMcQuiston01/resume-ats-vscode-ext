@@ -2,7 +2,7 @@
   "name": "hired-hand-resume-builder",
   "displayName": "Hired Hand: Resume Builder",
   "description": "Create an ATS-compatible resume from within VS Code by filling out a structured template section by section.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "richardmcquiston01",
   "license": "Apache-2.0",
   "icon": "resources/icon.jpg",
