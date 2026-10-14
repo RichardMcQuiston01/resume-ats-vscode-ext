@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Internal: `toPackageResume` adapter that converts the flat `resume.json` shape into the shared
+  `@richardmcquiston01/ats-resume-export` resume model (the package is a dev dependency for now;
+  nothing user-facing changes yet).
+
 ## [0.2.0] - 2026-09-22
 
 ### Added
