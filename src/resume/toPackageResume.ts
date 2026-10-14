@@ -1,14 +1,21 @@
 import { createHash } from 'node:crypto';
 import type { Resume } from '@richardmcquiston01/ats-resume-export';
 import type { ResumeData } from './types';
+import { resolveSectionOrder } from './sections';
 
 // Adapter from this extension's flat resume.json shape to the shared
 // @richardmcquiston01/ats-resume-export `Resume` model, so the ATS checks and
 // exporters in that package can be run against a resume.json.
 //
 // The mapping is one-way and lossy by design:
-//  - `sectionOrder` is dropped (the package renders a fixed section order).
-//  - Highlights keep their `**bold**` / `*italic*` markers as plain text.
+//  - `sectionOrder` is passed through (resolved by this extension's own rules), and
+//    the package's exporters honor it.
+//  - Highlights keep their `**bold**` / `*italic*` markers; export with
+//    `richText: true` to render them as styled text.
+//  - A project's URL is mapped to `url` (so the package's checks validate it) and also
+//    folded into the description ("description — url"), because the package's exporters
+//    don't print a project's `url` and this extension has always printed it that way.
+//    If the package ever prints `url`, drop the fold to avoid showing it twice.
 //  - Only the explicit "Present" end date means current; a blank end date stays
 //    blank so the package's checks still flag the incomplete entry.
 //  - The flat shape has no ids, so stable ones are derived from each entity's
@@ -53,6 +60,14 @@ function buildCredential(degree: string, fieldOfStudy: string): string {
     .filter((part: string) => !isBlank(part))
     .map((part: string) => part.trim())
     .join(', ');
+}
+
+/** "description — url", matching how this extension's exports have always printed projects. */
+function projectDescription(description: string, url: string): string {
+  return [description, url]
+    .filter((part: string) => !isBlank(part))
+    .map((part: string) => part.trim())
+    .join(' — ');
 }
 
 export function toPackageResume(data: ResumeData, options: ToPackageResumeOptions = {}): Resume {
@@ -119,7 +134,7 @@ export function toPackageResume(data: ResumeData, options: ToPackageResumeOption
     projects: data.projects.map((entry, index) => ({
       id: stableId(`projects.${index}`),
       name: entry.name.trim(),
-      description: entry.description.trim(),
+      description: projectDescription(entry.description, entry.url),
       url: optional(entry.url),
       highlights: [...entry.highlights],
       techStack: [],
@@ -129,5 +144,6 @@ export function toPackageResume(data: ResumeData, options: ToPackageResumeOption
       screenshots: [],
     })),
     portfolio: { featuredProjectIds: [], recommendations: [] },
+    sectionOrder: resolveSectionOrder(data),
   };
 }

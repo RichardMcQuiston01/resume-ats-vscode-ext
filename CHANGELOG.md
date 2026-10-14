@@ -9,9 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Internal: `toPackageResume` adapter that converts the flat `resume.json` shape into the shared
-  `@richardmcquiston01/ats-resume-export` resume model (the package is a dev dependency for now;
-  nothing user-facing changes yet).
+- **Export style settings** (`hiredHand.export.*`): tune the HTML, Word, and PDF exports for the people who
+  read them. Choose a preset (`classic`, `compact`, `standard`, `comfortable`) and optionally override the
+  font family (sans-serif, serif, monospace), body, name, and heading sizes, line spacing, section and entry
+  spacing, margins, paper size (Letter or A4), and heading case. Exports stay ATS-friendly (a single column of
+  real text with real headings); out-of-range values are ignored with a message naming the setting, and
+  readability concerns (for example body text under 10 pt) are noted without blocking the export.
+- A4 paper size for PDF and Word exports.
+
+### Changed
+
+- HTML, Word, and PDF exports are now produced by the shared `@richardmcquiston01/ats-resume-export` package
+  instead of this extension's own code. The `classic` preset (the default) approximates the previous look, but
+  spacing and fonts differ slightly, and the three formats now match each other more closely. Visible
+  differences: the education GPA appears as a bullet under the degree, a blank name falls back to "Resume"
+  (was "Untitled"), and the LinkedIn and portfolio links sit on their own line under the contact details.
+  Your section order, Bold/Italic highlights, and project URLs are preserved.
 
 ## [0.2.0] - 2026-09-22
 
