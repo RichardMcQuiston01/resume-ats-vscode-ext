@@ -2,6 +2,7 @@ import * as assert from 'assert';
 import { checkResumeStructure, parseResume } from '@richardmcquiston01/ats-resume-export';
 import { toPackageResume } from '../../resume/toPackageResume';
 import { createDefaultResume } from '../../resume/template';
+import type { ResumeData } from '../../resume/types';
 import { fullyPopulatedResume } from './fixtures';
 
 const FIXED_NOW: Date = new Date('2026-01-01T00:00:00.000Z');
@@ -162,13 +163,53 @@ suite('toPackageResume', () => {
     assert.ok(errorIds.includes('contact.email'));
   });
 
-  test('ignores sectionOrder', () => {
+  test('passes a valid sectionOrder through', () => {
     const data = fullyPopulatedResume();
     data.sectionOrder = ['projects', 'skills', 'education', 'experience', 'certifications'];
 
-    assert.deepStrictEqual(
-      toPackageResume(data, { now: FIXED_NOW }),
-      toPackageResume(fullyPopulatedResume(), { now: FIXED_NOW }),
-    );
+    assert.deepStrictEqual(toPackageResume(data, { now: FIXED_NOW }).sectionOrder, [
+      'projects',
+      'skills',
+      'education',
+      'experience',
+      'certifications',
+    ]);
+  });
+
+  test('falls back to the default order for an invalid sectionOrder', () => {
+    const data = fullyPopulatedResume();
+    data.sectionOrder = ['projects'] as unknown as ResumeData['sectionOrder'];
+
+    assert.deepStrictEqual(toPackageResume(data, { now: FIXED_NOW }).sectionOrder, [
+      'experience',
+      'education',
+      'skills',
+      'certifications',
+      'projects',
+    ]);
+  });
+
+  test('prints a project URL after its description, as the exports always have', () => {
+    const [project] = toPackageResume(fullyPopulatedResume(), { now: FIXED_NOW }).projects;
+
+    assert.strictEqual(project?.description, 'A useful tool. — https://example.com');
+  });
+
+  test('uses the URL alone when a project has no description', () => {
+    const data = fullyPopulatedResume();
+    data.projects[0]!.description = '';
+
+    const [project] = toPackageResume(data, { now: FIXED_NOW }).projects;
+
+    assert.strictEqual(project?.description, 'https://example.com');
+  });
+
+  test('leaves a project description alone when it has no URL', () => {
+    const data = fullyPopulatedResume();
+    data.projects[0]!.url = '';
+
+    const [project] = toPackageResume(data, { now: FIXED_NOW }).projects;
+
+    assert.strictEqual(project?.description, 'A useful tool.');
   });
 });

@@ -28,7 +28,9 @@ warnings as you go, and export to Markdown, HTML, DOCX, or PDF.
 - **Export Resume** — one command, four formats: Markdown, HTML, DOCX, and PDF, all
   single-column with no tables or images, so the layout an ATS parser sees matches
   what you built. Bold/italic Highlights formatting renders as real bold/italic text
-  in every format.
+  in every format. HTML, DOCX, and PDF exports can be tuned for the people who will
+  read them (font, text size, spacing, margins, paper size) from VS Code settings,
+  without giving up ATS-friendly structure.
 
 ## Status
 
@@ -72,6 +74,33 @@ Then open the folder in VS Code and press `F5` to launch an Extension Developmen
 
 The **Edit Resume** and **Export Resume** commands are also available as toolbar
 buttons in the editor title bar whenever `resume.json` is the active file.
+
+### Customizing exports
+
+An ATS reads your resume first, then a person does, so the HTML, DOCX, and PDF exports
+can be tuned for readability. Open **Settings** and search for `hiredHand.export`.
+
+| Setting                            | What it changes                                                                | Allowed            |
+| ---------------------------------- | ------------------------------------------------------------------------------ | ------------------ |
+| `preset`                           | Overall look: `classic` (the default), `compact`, `standard`, or `comfortable` | those four         |
+| `fontFamily`                       | `sans-serif` (Arial/Helvetica), `serif` (Times), or `monospace` (Courier)      | those three        |
+| `fontSize`                         | Body text, in points                                                           | 8 to 16            |
+| `nameFontSize` / `headingFontSize` | Your name and section headings, in points                                      | 12 to 36 / 8 to 18 |
+| `lineSpacing`                      | Line height as a multiple of the font size                                     | 1 to 2             |
+| `sectionSpacing` / `entrySpacing`  | Space above section headings / between entries, in points                      | 0 to 36 / 0 to 24  |
+| `margin`                           | Page margin on all four sides, in points (72 = 1 inch)                         | 18 to 108          |
+| `pageSize`                         | `letter` or `a4` (PDF and Word)                                                | those two          |
+| `headingCase`                      | `upper` (SECTION) or `title` (Section)                                         | those two          |
+
+Leave a setting empty to use the preset's value; set one to override just that part.
+Markdown exports have no layout and are unaffected.
+
+**ATS safety is built in.** Settings can only change how the page looks, never its
+structure: the exports stay a single column of real text with real headings, in fonts
+every ATS, PDF reader, and Word install has. A value outside its range is ignored, and
+the export tells you which setting and why, instead of failing. If a choice is allowed
+but hard on human readers (body text under 10 pt, tight line spacing, very narrow
+margins), the export still succeeds and adds a short note.
 
 ### Examples
 

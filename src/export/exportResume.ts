@@ -1,10 +1,15 @@
 import * as vscode from 'vscode';
 import { validateResumeData } from '../resume/validate';
 import type { ResumeData } from '../resume/types';
+import type { StyleOption } from '@richardmcquiston01/ats-resume-export';
 import { resumeToMarkdown } from './toMarkdown';
-import { resumeToHtml } from './toHtml';
-import { resumeToDocxBuffer } from './toDocx';
-import { resumeToPdfBuffer } from './toPdf';
+import { resumeToDocxBuffer, resumeToHtml, resumeToPdfBuffer } from './packageExporters';
+import {
+  EXPORT_SETTINGS_SECTION,
+  resolveExportSettings,
+  type ExportSettingValues,
+  type ResolvedExportSettings,
+} from './exportStyle';
 
 const RESUME_FILE_NAME = 'resume.json';
 
@@ -13,15 +18,55 @@ export type ExportExtension = 'md' | 'html' | 'docx' | 'pdf';
 interface ExportFormat {
   label: string;
   extension: ExportExtension;
-  generate: (resume: ResumeData) => string | Promise<Buffer>;
+  /** Whether the export style settings (font, spacing, margins, ...) apply to this format. */
+  usesStyle: boolean;
+  generate: (resume: ResumeData, style: StyleOption) => string | Promise<Buffer>;
 }
 
 const FORMATS: ExportFormat[] = [
-  { label: 'Markdown (.md)', extension: 'md', generate: resumeToMarkdown },
-  { label: 'HTML (.html)', extension: 'html', generate: resumeToHtml },
-  { label: 'Word document (.docx)', extension: 'docx', generate: resumeToDocxBuffer },
-  { label: 'PDF (.pdf)', extension: 'pdf', generate: resumeToPdfBuffer },
+  {
+    label: 'Markdown (.md)',
+    extension: 'md',
+    usesStyle: false,
+    generate: (resume) => resumeToMarkdown(resume),
+  },
+  { label: 'HTML (.html)', extension: 'html', usesStyle: true, generate: resumeToHtml },
+  {
+    label: 'Word document (.docx)',
+    extension: 'docx',
+    usesStyle: true,
+    generate: resumeToDocxBuffer,
+  },
+  { label: 'PDF (.pdf)', extension: 'pdf', usesStyle: true, generate: resumeToPdfBuffer },
 ];
+
+/** Reads the `hiredHand.export.*` settings for this workspace folder and resolves them to a valid style. */
+function loadExportSettings(workspaceFolder: vscode.WorkspaceFolder): ResolvedExportSettings {
+  const config = vscode.workspace.getConfiguration(EXPORT_SETTINGS_SECTION, workspaceFolder.uri);
+  const values: ExportSettingValues = {
+    preset: config.get<string>('preset'),
+    fontFamily: config.get<string>('fontFamily'),
+    fontSize: config.get<number | null>('fontSize'),
+    nameFontSize: config.get<number | null>('nameFontSize'),
+    headingFontSize: config.get<number | null>('headingFontSize'),
+    lineSpacing: config.get<number | null>('lineSpacing'),
+    sectionSpacing: config.get<number | null>('sectionSpacing'),
+    entrySpacing: config.get<number | null>('entrySpacing'),
+    margin: config.get<number | null>('margin'),
+    pageSize: config.get<string>('pageSize'),
+    headingCase: config.get<string>('headingCase'),
+  };
+  return resolveExportSettings(values);
+}
+
+/** Tells the user about settings that were ignored, without blocking the export. */
+function reportIgnoredSettings(problems: string[]): void {
+  if (problems.length > 0) {
+    void vscode.window.showWarningMessage(
+      `Hired Hand: some export settings were ignored. ${problems.join(' ')}`,
+    );
+  }
+}
 
 async function readResume(resumeUri: vscode.Uri): Promise<ResumeData | undefined> {
   let parsed: unknown;
@@ -51,10 +96,11 @@ async function performExport(
   workspaceFolder: vscode.WorkspaceFolder,
   resume: ResumeData,
   format: ExportFormat,
+  style: StyleOption,
 ): Promise<vscode.Uri | undefined> {
   const outputUri = vscode.Uri.joinPath(workspaceFolder.uri, `resume.${format.extension}`);
   try {
-    const content = await format.generate(resume);
+    const content = await format.generate(resume, style);
     const bytes = typeof content === 'string' ? Buffer.from(content, 'utf8') : content;
     await vscode.workspace.fs.writeFile(outputUri, bytes);
     return outputUri;
@@ -85,7 +131,11 @@ export async function exportResumeToFormat(
     throw new Error(`Unknown export format: ${extension}`);
   }
 
-  return performExport(workspaceFolder, resume, format);
+  const settings = format.usesStyle ? loadExportSettings(workspaceFolder) : undefined;
+  if (settings) {
+    reportIgnoredSettings(settings.problems);
+  }
+  return performExport(workspaceFolder, resume, format, settings?.style ?? 'standard');
 }
 
 export async function exportResume(workspaceFolder: vscode.WorkspaceFolder): Promise<void> {
@@ -107,14 +157,25 @@ export async function exportResume(workspaceFolder: vscode.WorkspaceFolder): Pro
     return;
   }
 
-  const outputUri = await performExport(workspaceFolder, resume, format);
+  const settings = format.usesStyle ? loadExportSettings(workspaceFolder) : undefined;
+  if (settings) {
+    reportIgnoredSettings(settings.problems);
+  }
+
+  const outputUri = await performExport(
+    workspaceFolder,
+    resume,
+    format,
+    settings?.style ?? 'standard',
+  );
   if (!outputUri) {
     return;
   }
 
+  const note = settings && settings.warnings.length > 0 ? `. Note: ${settings.warnings[0]}` : '';
   const reveal = 'Reveal in Explorer';
   const selection = await vscode.window.showInformationMessage(
-    `Hired Hand: exported ${outputUri.fsPath}`,
+    `Hired Hand: exported ${outputUri.fsPath}${note}`,
     reveal,
   );
   if (selection === reveal) {
