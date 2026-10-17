@@ -80,20 +80,22 @@ buttons in the editor title bar whenever `resume.json` is the active file.
 An ATS reads your resume first, then a person does, so the HTML, DOCX, and PDF exports
 can be tuned for readability. Open **Settings** and search for `hiredHand.export`.
 
-| Setting                            | What it changes                                                                | Allowed            |
-| ---------------------------------- | ------------------------------------------------------------------------------ | ------------------ |
-| `preset`                           | Overall look: `classic` (the default), `compact`, `standard`, or `comfortable` | those four         |
-| `fontFamily`                       | `sans-serif` (Arial/Helvetica), `serif` (Times), or `monospace` (Courier)      | those three        |
-| `fontSize`                         | Body text, in points                                                           | 8 to 16            |
-| `nameFontSize` / `headingFontSize` | Your name and section headings, in points                                      | 12 to 36 / 8 to 18 |
-| `lineSpacing`                      | Line height as a multiple of the font size                                     | 1 to 2             |
-| `sectionSpacing` / `entrySpacing`  | Space above section headings / between entries, in points                      | 0 to 36 / 0 to 24  |
-| `margin`                           | Page margin on all four sides, in points (72 = 1 inch)                         | 18 to 108          |
-| `pageSize`                         | `letter` or `a4` (PDF and Word)                                                | those two          |
-| `headingCase`                      | `upper` (SECTION) or `title` (Section)                                         | those two          |
+| Setting                            | What it changes                                                                | Allowed                             |
+| ---------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------- |
+| `preset`                           | Overall look: `classic` (the default), `compact`, `standard`, or `comfortable` | those four                          |
+| `fontFamily`                       | `sans-serif` (Arial/Helvetica), `serif` (Times), or `monospace` (Courier)      | those three                         |
+| `fontSize`                         | Body text, in points                                                           | 8 to 16                             |
+| `nameFontSize` / `headingFontSize` | Your name and section headings, in points                                      | 12 to 36 / 8 to 18                  |
+| `lineSpacing`                      | Line height as a multiple of the font size                                     | 1 to 2                              |
+| `sectionSpacing` / `entrySpacing`  | Space above section headings / between entries, in points                      | 0 to 36 / 0 to 24                   |
+| `margin`                           | Page margin on all four sides, in points (72 = 1 inch)                         | 18 to 108                           |
+| `pageSize`                         | `letter` or `a4` (PDF and Word)                                                | those two                           |
+| `headingCase`                      | `upper` (SECTION) or `title` (Section)                                         | those two                           |
+| `projectLinks`                     | Where a project's `url` goes: its own line, the heading line, or nowhere       | `below` (default), `heading`, `off` |
 
 Leave a setting empty to use the preset's value; set one to override just that part.
-Markdown exports have no layout and are unaffected.
+Markdown exports have no layout and are unaffected (they always list a project's URL after its
+description).
 
 **ATS safety is built in.** Settings can only change how the page looks, never its
 structure: the exports stay a single column of real text with real headings, in fonts
@@ -138,4 +140,4 @@ Apache 2
 
 ## Copyright
 
-(c)2026 Richard McQuiston.  All rights reserved.
+(c)2026 Richard McQuiston. All rights reserved.
