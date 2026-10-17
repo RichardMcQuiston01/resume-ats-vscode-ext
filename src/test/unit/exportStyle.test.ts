@@ -3,6 +3,7 @@ import { validateExportStyle, type ExportStyleInput } from '@richardmcquiston01/
 import {
   CLASSIC_STYLE,
   DEFAULT_PRESET,
+  DEFAULT_PROJECT_LINKS,
   EXPORT_SETTINGS_SECTION,
   resolveExportSettings,
 } from '../../export/exportStyle';
@@ -103,5 +104,38 @@ suite('resolveExportSettings', () => {
 
   test('every classic option is valid for the shared exporters', () => {
     assert.deepStrictEqual(validateExportStyle(CLASSIC_STYLE), []);
+  });
+
+  test('prints project links on their own line by default, as the exports always showed them', () => {
+    const result = resolveExportSettings({});
+
+    assert.strictEqual(DEFAULT_PROJECT_LINKS, 'below');
+    assert.deepStrictEqual(result.details, { projectLinks: 'below' });
+  });
+
+  test('passes each projectLinks placement through', () => {
+    for (const placement of ['off', 'heading', 'below'] as const) {
+      const result = resolveExportSettings({ projectLinks: placement });
+
+      assert.deepStrictEqual(result.details, { projectLinks: placement });
+      assert.deepStrictEqual(result.problems, []);
+    }
+  });
+
+  test('treats an empty projectLinks as "not set"', () => {
+    const result = resolveExportSettings({ projectLinks: '' });
+
+    assert.deepStrictEqual(result.details, { projectLinks: 'below' });
+    assert.deepStrictEqual(result.problems, []);
+  });
+
+  test('ignores an unknown projectLinks placement and says why', () => {
+    const result = resolveExportSettings({ projectLinks: 'beside' });
+
+    assert.deepStrictEqual(result.details, { projectLinks: 'below' });
+    assert.strictEqual(result.problems.length, 1);
+    assert.ok(result.problems[0]?.includes('hiredHand.export.projectLinks'));
+    assert.ok(result.problems[0]?.includes('"beside"'));
+    assert.ok(result.problems[0]?.includes('off, heading, below'));
   });
 });

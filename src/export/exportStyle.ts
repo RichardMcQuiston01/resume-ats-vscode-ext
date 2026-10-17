@@ -1,7 +1,10 @@
 import {
   checkExportStyle,
+  DETAIL_PLACEMENTS,
   STYLE_PRESETS,
   validateExportStyle,
+  type DetailPlacement,
+  type ExportDetails,
   type ExportStyle,
   type ExportStyleInput,
   type StylePreset,
@@ -16,6 +19,12 @@ export type PresetSetting = 'classic' | StylePreset;
 export const PRESET_SETTINGS: readonly PresetSetting[] = ['classic', ...STYLE_PRESETS];
 
 export const DEFAULT_PRESET: PresetSetting = 'classic';
+
+/**
+ * Where a project's link goes by default. Exports have always printed it, so it stays on by
+ * default: on its own line, since the shared exporters no longer append it to the description.
+ */
+export const DEFAULT_PROJECT_LINKS: DetailPlacement = 'below';
 
 /**
  * Approximates how this extension's HTML, DOCX, and PDF exports looked before they moved to
@@ -52,13 +61,15 @@ const OVERRIDE_KEYS = [
 type OverrideKey = (typeof OVERRIDE_KEYS)[number];
 
 /** Raw values as read from the settings. An empty string, null, or undefined means "not set". */
-export type ExportSettingValues = { preset?: string | null } & {
+export type ExportSettingValues = { preset?: string | null; projectLinks?: unknown } & {
   [Key in OverrideKey]?: unknown;
 };
 
 export interface ResolvedExportSettings {
   /** Always valid, so it can be passed straight to the exporters. */
   style: ExportStyleInput;
+  /** Which entry details to print and where (this extension only has project links). */
+  details: ExportDetails;
   /** Settings that were ignored, each with the setting name and why. Empty when all were fine. */
   problems: string[];
   /** Readability notes about valid-but-risky choices (these never block an export). */
@@ -71,6 +82,10 @@ function isUnset(value: unknown): boolean {
 
 function isPresetSetting(value: unknown): value is PresetSetting {
   return typeof value === 'string' && (PRESET_SETTINGS as readonly string[]).includes(value);
+}
+
+function isDetailPlacement(value: unknown): value is DetailPlacement {
+  return typeof value === 'string' && (DETAIL_PLACEMENTS as readonly string[]).includes(value);
 }
 
 function buildStyle(
@@ -101,6 +116,18 @@ export function resolveExportSettings(values: ExportSettingValues): ResolvedExpo
     }
   }
 
+  let projectLinks: DetailPlacement = DEFAULT_PROJECT_LINKS;
+  if (!isUnset(values.projectLinks)) {
+    if (isDetailPlacement(values.projectLinks)) {
+      projectLinks = values.projectLinks;
+    } else {
+      problems.push(
+        `${EXPORT_SETTINGS_SECTION}.projectLinks: unknown placement "${String(values.projectLinks)}"; ` +
+          `using "${DEFAULT_PROJECT_LINKS}" instead. Use one of: ${DETAIL_PLACEMENTS.join(', ')}.`,
+      );
+    }
+  }
+
   const overrides: Partial<Record<OverrideKey, unknown>> = {};
   for (const key of OVERRIDE_KEYS) {
     if (!isUnset(values[key])) {
@@ -127,5 +154,5 @@ export function resolveExportSettings(values: ExportSettingValues): ResolvedExpo
 
   const style = buildStyle(preset, overrides);
   const warnings = checkExportStyle(style).map((finding) => finding.message);
-  return { style, problems, warnings };
+  return { style, details: { projectLinks }, problems, warnings };
 }
