@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { validateResumeData } from '../resume/validate';
+import { normalizeResumeData, validateResumeData } from '../resume/validate';
 import type { ResumeData } from '../resume/types';
 import type { PackageExportOptions } from './packageExporters';
 import { resumeToMarkdown } from './toMarkdown';
@@ -65,6 +65,9 @@ function loadExportSettings(workspaceFolder: vscode.WorkspaceFolder): ResolvedEx
     margin: config.get<number | null>('margin'),
     pageSize: config.get<string>('pageSize'),
     projectLinks: config.get<string>('projectLinks'),
+    projectTechStack: config.get<string>('projectTechStack'),
+    projectOutcome: config.get<string>('projectOutcome'),
+    credentialUrl: config.get<string>('credentialUrl'),
     headingCase: config.get<string>('headingCase'),
   };
   return resolveExportSettings(values);
@@ -105,7 +108,7 @@ async function readResume(resumeUri: vscode.Uri): Promise<ResumeData | undefined
     return undefined;
   }
 
-  return parsed as ResumeData;
+  return normalizeResumeData(parsed as ResumeData);
 }
 
 async function performExport(

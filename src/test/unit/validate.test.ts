@@ -58,12 +58,18 @@ suite('validateResumeData', () => {
         },
       ],
       skills: [{ category: 'Languages', skills: ['TypeScript', 'Go'] }],
-      certifications: [{ name: 'AWS Certified', issuer: 'AWS', issueDate: '2021-01' }],
+      certifications: [
+        { name: 'AWS Certified', issuer: 'AWS', issueDate: '2021-01', credentialUrl: '' },
+      ],
       projects: [
         {
           name: 'Side Project',
           description: 'A useful tool.',
           url: 'https://example.com',
+          repoUrl: '',
+          demoUrl: '',
+          techStack: [],
+          outcome: '',
           highlights: ['Built with TypeScript'],
         },
       ],

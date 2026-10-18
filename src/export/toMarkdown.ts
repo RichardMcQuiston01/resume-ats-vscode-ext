@@ -1,4 +1,4 @@
-import type { ResumeData, SectionKey } from '../resume/types';
+import type { ProjectEntry, ResumeData, SectionKey } from '../resume/types';
 import { resolveSectionOrder } from '../resume/sections';
 
 function contactLine(resume: ResumeData): string {
@@ -59,10 +59,31 @@ function certificationsSection(resume: ResumeData): string | undefined {
   if (resume.certifications.length === 0) {
     return undefined;
   }
-  const entries = resume.certifications.map(
-    (entry) => `- ${entry.name} — ${entry.issuer} (${entry.issueDate})`,
-  );
+  const entries = resume.certifications.map((entry) => {
+    const line = `- ${entry.name} — ${entry.issuer} (${entry.issueDate})`;
+    return entry.credentialUrl.trim().length > 0 ? `${line} — ${entry.credentialUrl}` : line;
+  });
   return `## Certifications\n\n${entries.join('\n')}`;
+}
+
+/** Everything beyond the description that the project has, each on its own line. */
+function projectDetailLines(entry: ProjectEntry): string[] {
+  const lines: string[] = [];
+  const techStack = entry.techStack.filter((tech) => tech.trim().length > 0).join(', ');
+  if (techStack.length > 0) {
+    lines.push(`**Tech stack:** ${techStack}`);
+  }
+  if (entry.outcome.trim().length > 0) {
+    lines.push(`**Outcome:** ${entry.outcome}`);
+  }
+  if (entry.repoUrl.trim().length > 0) {
+    lines.push(`**Repository:** ${entry.repoUrl}`);
+  }
+  if (entry.demoUrl.trim().length > 0) {
+    lines.push(`**Demo:** ${entry.demoUrl}`);
+  }
+  // A line break inside a paragraph needs two trailing spaces in Markdown.
+  return lines.map((line, index) => (index < lines.length - 1 ? `${line}  ` : line));
 }
 
 function projectsSection(resume: ResumeData): string | undefined {
@@ -74,8 +95,9 @@ function projectsSection(resume: ResumeData): string | undefined {
     const meta = [entry.description, entry.url]
       .filter((part) => part.trim().length > 0)
       .join(' — ');
+    const details = projectDetailLines(entry).join('\n');
     const highlights = highlightsSection(entry.highlights);
-    return [heading, meta, highlights].filter((part) => part.length > 0).join('\n\n');
+    return [heading, meta, details, highlights].filter((part) => part.length > 0).join('\n\n');
   });
   return `## Projects\n\n${entries.join('\n\n')}`;
 }

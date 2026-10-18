@@ -91,11 +91,14 @@ can be tuned for readability. Open **Settings** and search for `hiredHand.export
 | `margin`                           | Page margin on all four sides, in points (72 = 1 inch)                         | 18 to 108                           |
 | `pageSize`                         | `letter` or `a4` (PDF and Word)                                                | those two                           |
 | `headingCase`                      | `upper` (SECTION) or `title` (Section)                                         | those two                           |
-| `projectLinks`                     | Where a project's `url` goes: its own line, the heading line, or nowhere       | `below` (default), `heading`, `off` |
+| `projectLinks`                     | Where a project's links (URL, repository, demo) go                             | `below` (default), `heading`, `off` |
+| `projectTechStack`                 | Where a project's tech stack goes                                              | `off` (default), `heading`, `below` |
+| `projectOutcome`                   | Whether a project's outcome is printed (on its own line)                       | `off` (default), `below`            |
+| `credentialUrl`                    | Where a certification's credential URL goes                                    | `off` (default), `heading`, `below` |
 
 Leave a setting empty to use the preset's value; set one to override just that part.
-Markdown exports have no layout and are unaffected (they always list a project's URL after its
-description).
+Markdown exports have no layout, so the style settings do not apply to them. A Markdown export
+simply lists everything you entered for each project and certification.
 
 **ATS safety is built in.** Settings can only change how the page looks, never its
 structure: the exports stay a single column of real text with real headings, in fonts
@@ -103,6 +106,42 @@ every ATS, PDF reader, and Word install has. A value outside its range is ignore
 the export tells you which setting and why, instead of failing. If a choice is allowed
 but hard on human readers (body text under 10 pt, tight line spacing, very narrow
 margins), the export still succeeds and adds a short note.
+
+### Project and certification details
+
+Besides a name and description, a project can have a **URL**, a **repository URL**, a **demo URL**,
+a **tech stack**, and an **outcome** (the result or impact, for example "Cut reconciliation from 2
+days to 2 hours."), and a certification can have a **credential URL** (a Credly or issuer page that
+verifies it). Fill them in from **Edit Resume**, or add them to `resume.json`:
+
+```json
+{
+  "certifications": [
+    {
+      "name": "AWS Certified Solutions Architect",
+      "issuer": "AWS",
+      "issueDate": "2023-05",
+      "credentialUrl": "https://verify.example.com/cert/42"
+    }
+  ],
+  "projects": [
+    {
+      "name": "Ledger",
+      "description": "Reconciliation tool.",
+      "url": "https://ledger.example.com",
+      "repoUrl": "https://github.com/example/ledger",
+      "demoUrl": "https://demo.example.com",
+      "techStack": ["Go", "PostgreSQL"],
+      "outcome": "Cut reconciliation from 2 days to 2 hours.",
+      "highlights": []
+    }
+  ]
+}
+```
+
+The HTML, Word, and PDF exports print the links by default (see `projectLinks`) and leave the rest
+out until you turn them on with the settings above. A `resume.json` saved by an earlier version,
+without these fields, keeps working unchanged.
 
 ### Examples
 

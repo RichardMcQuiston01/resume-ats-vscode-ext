@@ -18,6 +18,12 @@ function isValidHttpUrl(value: string): boolean {
   }
 }
 
+function warnIfInvalidUrl(warnings: string[], label: string, value: string): void {
+  if (!isBlank(value) && !isValidHttpUrl(value.trim())) {
+    warnings.push(`${label} does not look like a valid web address (include https://).`);
+  }
+}
+
 export function getFormatWarnings(resume: ResumeData): string[] {
   const warnings: string[] = [];
   const { email, phone, linkedInUrl, portfolioUrl } = resume.contact;
@@ -34,6 +40,20 @@ export function getFormatWarnings(resume: ResumeData): string[] {
   if (!isBlank(portfolioUrl) && !isValidHttpUrl(portfolioUrl.trim())) {
     warnings.push('Portfolio URL does not look like a valid web address (include https://).');
   }
+
+  resume.projects.forEach((project, index) => {
+    const label = `Project #${index + 1}`;
+    warnIfInvalidUrl(warnings, `${label} URL`, project.url);
+    warnIfInvalidUrl(warnings, `${label} repository URL`, project.repoUrl);
+    warnIfInvalidUrl(warnings, `${label} demo URL`, project.demoUrl);
+  });
+  resume.certifications.forEach((certification, index) => {
+    warnIfInvalidUrl(
+      warnings,
+      `Certification #${index + 1} credential URL`,
+      certification.credentialUrl,
+    );
+  });
 
   return warnings;
 }

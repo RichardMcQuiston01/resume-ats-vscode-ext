@@ -1,9 +1,9 @@
 import {
   checkExportStyle,
   DETAIL_PLACEMENTS,
+  OUTCOME_PLACEMENTS,
   STYLE_PRESETS,
   validateExportStyle,
-  type DetailPlacement,
   type ExportDetails,
   type ExportStyle,
   type ExportStyleInput,
@@ -24,7 +24,27 @@ export const DEFAULT_PRESET: PresetSetting = 'classic';
  * Where a project's link goes by default. Exports have always printed it, so it stays on by
  * default: on its own line, since the shared exporters no longer append it to the description.
  */
-export const DEFAULT_PROJECT_LINKS: DetailPlacement = 'below';
+export const DEFAULT_PROJECT_LINKS = 'below';
+
+type DetailSettingKey = keyof ExportDetails;
+
+interface DetailSetting {
+  key: DetailSettingKey;
+  allowed: readonly string[];
+  fallback: string;
+}
+
+/**
+ * The settings that choose whether an entry detail is printed and where. Project links are on
+ * by default (exports have always shown them); the details added to resume.json later are off
+ * until asked for, so existing exports do not change.
+ */
+const DETAIL_SETTINGS: readonly DetailSetting[] = [
+  { key: 'projectLinks', allowed: DETAIL_PLACEMENTS, fallback: DEFAULT_PROJECT_LINKS },
+  { key: 'projectTechStack', allowed: DETAIL_PLACEMENTS, fallback: 'off' },
+  { key: 'projectOutcome', allowed: OUTCOME_PLACEMENTS, fallback: 'off' },
+  { key: 'credentialUrl', allowed: DETAIL_PLACEMENTS, fallback: 'off' },
+];
 
 /**
  * Approximates how this extension's HTML, DOCX, and PDF exports looked before they moved to
@@ -61,14 +81,16 @@ const OVERRIDE_KEYS = [
 type OverrideKey = (typeof OVERRIDE_KEYS)[number];
 
 /** Raw values as read from the settings. An empty string, null, or undefined means "not set". */
-export type ExportSettingValues = { preset?: string | null; projectLinks?: unknown } & {
+export type ExportSettingValues = { preset?: string | null } & {
+  [Key in DetailSettingKey]?: unknown;
+} & {
   [Key in OverrideKey]?: unknown;
 };
 
 export interface ResolvedExportSettings {
   /** Always valid, so it can be passed straight to the exporters. */
   style: ExportStyleInput;
-  /** Which entry details to print and where (this extension only has project links). */
+  /** Which project and certification details to print, and where. */
   details: ExportDetails;
   /** Settings that were ignored, each with the setting name and why. Empty when all were fine. */
   problems: string[];
@@ -82,10 +104,6 @@ function isUnset(value: unknown): boolean {
 
 function isPresetSetting(value: unknown): value is PresetSetting {
   return typeof value === 'string' && (PRESET_SETTINGS as readonly string[]).includes(value);
-}
-
-function isDetailPlacement(value: unknown): value is DetailPlacement {
-  return typeof value === 'string' && (DETAIL_PLACEMENTS as readonly string[]).includes(value);
 }
 
 function buildStyle(
@@ -116,14 +134,18 @@ export function resolveExportSettings(values: ExportSettingValues): ResolvedExpo
     }
   }
 
-  let projectLinks: DetailPlacement = DEFAULT_PROJECT_LINKS;
-  if (!isUnset(values.projectLinks)) {
-    if (isDetailPlacement(values.projectLinks)) {
-      projectLinks = values.projectLinks;
+  const details: Record<string, string> = {};
+  for (const { key, allowed, fallback } of DETAIL_SETTINGS) {
+    const value = values[key];
+    if (isUnset(value)) {
+      details[key] = fallback;
+    } else if (typeof value === 'string' && allowed.includes(value)) {
+      details[key] = value;
     } else {
+      details[key] = fallback;
       problems.push(
-        `${EXPORT_SETTINGS_SECTION}.projectLinks: unknown placement "${String(values.projectLinks)}"; ` +
-          `using "${DEFAULT_PROJECT_LINKS}" instead. Use one of: ${DETAIL_PLACEMENTS.join(', ')}.`,
+        `${EXPORT_SETTINGS_SECTION}.${key}: unknown placement "${String(value)}"; ` +
+          `using "${fallback}" instead. Use one of: ${allowed.join(', ')}.`,
       );
     }
   }
@@ -154,5 +176,5 @@ export function resolveExportSettings(values: ExportSettingValues): ResolvedExpo
 
   const style = buildStyle(preset, overrides);
   const warnings = checkExportStyle(style).map((finding) => finding.message);
-  return { style, details: { projectLinks }, problems, warnings };
+  return { style, details: details as ExportDetails, problems, warnings };
 }

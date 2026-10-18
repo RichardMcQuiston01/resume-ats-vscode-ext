@@ -94,12 +94,55 @@
             "off"
           ],
           "enumDescriptions": [
-            "On its own line under the project, labelled \"Link:\".",
+            "On its own line under the project, labelled \"Link:\", \"Code:\", and \"Demo:\".",
             "On the project's heading line, after its name.",
             "Do not print project links."
           ],
           "default": "below",
-          "markdownDescription": "Where a project's `url` goes in the HTML, Word, and PDF exports. Markdown always lists it after the description."
+          "markdownDescription": "Where a project's links (its URL, repository URL, and demo URL) go in the HTML, Word, and PDF exports."
+        },
+        "hiredHand.export.projectTechStack": {
+          "type": "string",
+          "enum": [
+            "off",
+            "heading",
+            "below"
+          ],
+          "enumDescriptions": [
+            "Do not print a project's tech stack.",
+            "On the project's heading line, after its name.",
+            "On its own line under the project, labelled \"Tech stack:\"."
+          ],
+          "default": "off",
+          "markdownDescription": "Where a project's tech stack goes in the HTML, Word, and PDF exports."
+        },
+        "hiredHand.export.projectOutcome": {
+          "type": "string",
+          "enum": [
+            "off",
+            "below"
+          ],
+          "enumDescriptions": [
+            "Do not print a project's outcome.",
+            "On its own line under the project, labelled \"Outcome:\"."
+          ],
+          "default": "off",
+          "markdownDescription": "Whether a project's outcome is printed in the HTML, Word, and PDF exports. It is a full sentence, so it only goes on its own line."
+        },
+        "hiredHand.export.credentialUrl": {
+          "type": "string",
+          "enum": [
+            "off",
+            "heading",
+            "below"
+          ],
+          "enumDescriptions": [
+            "Do not print a certification's credential URL.",
+            "On the certification's line, after its name, issuer, and date.",
+            "On its own line under the certification, labelled \"Credential:\"."
+          ],
+          "default": "off",
+          "markdownDescription": "Where a certification's credential URL goes in the HTML, Word, and PDF exports."
         },
         "hiredHand.export.fontFamily": {
           "type": "string",

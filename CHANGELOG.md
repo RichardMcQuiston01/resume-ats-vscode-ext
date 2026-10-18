@@ -16,9 +16,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   real text with real headings); out-of-range values are ignored with a message naming the setting, and
   readability concerns (for example body text under 10 pt) are noted without blocking the export.
 - A4 paper size for PDF and Word exports.
-- **`hiredHand.export.projectLinks`**: choose where a project's URL goes in the HTML, Word, and PDF exports:
+- **`hiredHand.export.projectLinks`**: choose where a project's links go in the HTML, Word, and PDF exports:
   on its own line under the project (`below`, the default), on the project's heading line after its name
   (`heading`), or not at all (`off`).
+- **More project and certification details** in `resume.json` and **Edit Resume**: a project can now have a
+  repository URL, a demo URL, a tech stack, and an outcome, and a certification can have a credential URL.
+  Existing `resume.json` files keep working; the new fields default to empty. The HTML, Word, and PDF exports
+  leave the new details out unless you turn them on with `hiredHand.export.projectTechStack`,
+  `projectOutcome`, `credentialUrl` (and `projectLinks`, which now also covers the repository and demo links).
+  Markdown exports list everything you entered. **Edit Resume** warns about a link that is not a web address.
 
 ### Changed
 

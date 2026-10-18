@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { createDefaultResume } from '../resume/template';
-import { validateResumeData } from '../resume/validate';
+import { normalizeResumeData, validateResumeData } from '../resume/validate';
 import { getRequiredFieldErrors } from '../resume/requiredFields';
 import type { ResumeData } from '../resume/types';
 import type { ExtensionToWebviewMessage, WebviewToExtensionMessage } from './messages';
@@ -69,7 +69,7 @@ export class ResumeEditorPanel {
       const parsed: unknown = JSON.parse(Buffer.from(bytes).toString('utf8'));
       const result = validateResumeData(parsed);
       if (result.valid) {
-        return parsed as ResumeData;
+        return normalizeResumeData(parsed as ResumeData);
       }
       void vscode.window.showWarningMessage(
         `Hired Hand: ${RESUME_FILE_NAME} is invalid (${result.errors[0]}); starting from a blank resume.`,
