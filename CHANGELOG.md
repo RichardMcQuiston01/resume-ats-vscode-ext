@@ -7,7 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-10-18
+
+### Fixed
+
+- The extension icon is now 512×512 instead of 2000×2000. The Marketplace rejects icons larger than
+  1024×1024, so 0.3.0 could not be published; everything in 0.3.0 below ships in this release.
+
 ## [0.3.0] - 2026-10-18
+
+> Not published to the Marketplace (its icon was rejected). Released as 0.3.1.
 
 ### Added
 
