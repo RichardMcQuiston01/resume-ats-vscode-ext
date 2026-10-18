@@ -26,11 +26,20 @@ export function emptySkillGroup(): SkillGroup {
 }
 
 export function emptyCertificationEntry(): CertificationEntry {
-  return { name: '', issuer: '', issueDate: '' };
+  return { name: '', issuer: '', issueDate: '', credentialUrl: '' };
 }
 
 export function emptyProjectEntry(): ProjectEntry {
-  return { name: '', description: '', url: '', highlights: [] };
+  return {
+    name: '',
+    description: '',
+    url: '',
+    repoUrl: '',
+    demoUrl: '',
+    techStack: [],
+    outcome: '',
+    highlights: [],
+  };
 }
 
 export function parseHighlightsText(text: string): string[] {

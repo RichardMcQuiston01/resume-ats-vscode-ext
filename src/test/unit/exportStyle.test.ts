@@ -110,14 +110,14 @@ suite('resolveExportSettings', () => {
     const result = resolveExportSettings({});
 
     assert.strictEqual(DEFAULT_PROJECT_LINKS, 'below');
-    assert.deepStrictEqual(result.details, { projectLinks: 'below' });
+    assert.strictEqual(result.details.projectLinks, 'below');
   });
 
   test('passes each projectLinks placement through', () => {
     for (const placement of ['off', 'heading', 'below'] as const) {
       const result = resolveExportSettings({ projectLinks: placement });
 
-      assert.deepStrictEqual(result.details, { projectLinks: placement });
+      assert.strictEqual(result.details.projectLinks, placement);
       assert.deepStrictEqual(result.problems, []);
     }
   });
@@ -125,17 +125,61 @@ suite('resolveExportSettings', () => {
   test('treats an empty projectLinks as "not set"', () => {
     const result = resolveExportSettings({ projectLinks: '' });
 
-    assert.deepStrictEqual(result.details, { projectLinks: 'below' });
+    assert.strictEqual(result.details.projectLinks, 'below');
     assert.deepStrictEqual(result.problems, []);
   });
 
   test('ignores an unknown projectLinks placement and says why', () => {
     const result = resolveExportSettings({ projectLinks: 'beside' });
 
-    assert.deepStrictEqual(result.details, { projectLinks: 'below' });
+    assert.strictEqual(result.details.projectLinks, 'below');
     assert.strictEqual(result.problems.length, 1);
     assert.ok(result.problems[0]?.includes('hiredHand.export.projectLinks'));
     assert.ok(result.problems[0]?.includes('"beside"'));
     assert.ok(result.problems[0]?.includes('off, heading, below'));
+  });
+
+  test('leaves the details added to resume.json off by default', () => {
+    assert.deepStrictEqual(resolveExportSettings({}).details, {
+      projectLinks: 'below',
+      projectTechStack: 'off',
+      projectOutcome: 'off',
+      credentialUrl: 'off',
+    });
+  });
+
+  test('passes each detail placement through', () => {
+    const result = resolveExportSettings({
+      projectTechStack: 'heading',
+      projectOutcome: 'below',
+      credentialUrl: 'below',
+    });
+
+    assert.deepStrictEqual(result.details, {
+      projectLinks: 'below',
+      projectTechStack: 'heading',
+      projectOutcome: 'below',
+      credentialUrl: 'below',
+    });
+    assert.deepStrictEqual(result.problems, []);
+  });
+
+  test('only lets the project outcome go below', () => {
+    const result = resolveExportSettings({ projectOutcome: 'heading' });
+
+    assert.strictEqual(result.details.projectOutcome, 'off');
+    assert.strictEqual(result.problems.length, 1);
+    assert.ok(result.problems[0]?.includes('hiredHand.export.projectOutcome'));
+    assert.ok(result.problems[0]?.includes('off, below'));
+  });
+
+  test('ignores an unknown placement for the other details and says which setting', () => {
+    const result = resolveExportSettings({ credentialUrl: 'beside', projectTechStack: 'x' });
+
+    assert.strictEqual(result.details.credentialUrl, 'off');
+    assert.strictEqual(result.details.projectTechStack, 'off');
+    assert.strictEqual(result.problems.length, 2);
+    assert.ok(result.problems.some((problem) => problem.includes('credentialUrl')));
+    assert.ok(result.problems.some((problem) => problem.includes('projectTechStack')));
   });
 });

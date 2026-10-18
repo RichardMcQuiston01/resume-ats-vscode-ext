@@ -33,12 +33,21 @@ export interface CertificationEntry {
   name: string;
   issuer: string;
   issueDate: string;
+  /** Link to verify the credential, e.g. a Credly or issuer page. */
+  credentialUrl: string;
 }
 
 export interface ProjectEntry {
   name: string;
   description: string;
   url: string;
+  /** Source repository. */
+  repoUrl: string;
+  /** Live demo. */
+  demoUrl: string;
+  techStack: string[];
+  /** The result or impact, e.g. "Cut reconciliation from 2 days to 2 hours." */
+  outcome: string;
   highlights: string[];
 }
 
