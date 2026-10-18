@@ -189,27 +189,19 @@ suite('toPackageResume', () => {
     ]);
   });
 
-  test('prints a project URL after its description, as the exports always have', () => {
+  test('keeps a project description as written and maps its URL separately', () => {
     const [project] = toPackageResume(fullyPopulatedResume(), { now: FIXED_NOW }).projects;
 
-    assert.strictEqual(project?.description, 'A useful tool. — https://example.com');
-  });
-
-  test('uses the URL alone when a project has no description', () => {
-    const data = fullyPopulatedResume();
-    data.projects[0]!.description = '';
-
-    const [project] = toPackageResume(data, { now: FIXED_NOW }).projects;
-
-    assert.strictEqual(project?.description, 'https://example.com');
-  });
-
-  test('leaves a project description alone when it has no URL', () => {
-    const data = fullyPopulatedResume();
-    data.projects[0]!.url = '';
-
-    const [project] = toPackageResume(data, { now: FIXED_NOW }).projects;
-
     assert.strictEqual(project?.description, 'A useful tool.');
+    assert.strictEqual(project?.url, 'https://example.com');
+  });
+
+  test('omits the project URL when it is blank', () => {
+    const data = fullyPopulatedResume();
+    data.projects[0]!.url = '  ';
+
+    const [project] = toPackageResume(data, { now: FIXED_NOW }).projects;
+
+    assert.strictEqual(project?.url, undefined);
   });
 });

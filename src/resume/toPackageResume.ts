@@ -12,10 +12,8 @@ import { resolveSectionOrder } from './sections';
 //    the package's exporters honor it.
 //  - Highlights keep their `**bold**` / `*italic*` markers; export with
 //    `richText: true` to render them as styled text.
-//  - A project's URL is mapped to `url` (so the package's checks validate it) and also
-//    folded into the description ("description — url"), because the package's exporters
-//    don't print a project's `url` and this extension has always printed it that way.
-//    If the package ever prints `url`, drop the fold to avoid showing it twice.
+//  - A project's URL is mapped to `url`; the exporters print it where the
+//    `hiredHand.export.projectLinks` setting says (see exportStyle.ts).
 //  - Only the explicit "Present" end date means current; a blank end date stays
 //    blank so the package's checks still flag the incomplete entry.
 //  - The flat shape has no ids, so stable ones are derived from each entity's
@@ -60,14 +58,6 @@ function buildCredential(degree: string, fieldOfStudy: string): string {
     .filter((part: string) => !isBlank(part))
     .map((part: string) => part.trim())
     .join(', ');
-}
-
-/** "description — url", matching how this extension's exports have always printed projects. */
-function projectDescription(description: string, url: string): string {
-  return [description, url]
-    .filter((part: string) => !isBlank(part))
-    .map((part: string) => part.trim())
-    .join(' — ');
 }
 
 export function toPackageResume(data: ResumeData, options: ToPackageResumeOptions = {}): Resume {
@@ -134,7 +124,7 @@ export function toPackageResume(data: ResumeData, options: ToPackageResumeOption
     projects: data.projects.map((entry, index) => ({
       id: stableId(`projects.${index}`),
       name: entry.name.trim(),
-      description: projectDescription(entry.description, entry.url),
+      description: entry.description.trim(),
       url: optional(entry.url),
       highlights: [...entry.highlights],
       techStack: [],

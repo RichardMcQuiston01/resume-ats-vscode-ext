@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { validateResumeData } from '../resume/validate';
 import type { ResumeData } from '../resume/types';
-import type { StyleOption } from '@richardmcquiston01/ats-resume-export';
+import type { PackageExportOptions } from './packageExporters';
 import { resumeToMarkdown } from './toMarkdown';
 import { resumeToDocxBuffer, resumeToHtml, resumeToPdfBuffer } from './packageExporters';
 import {
@@ -20,7 +20,7 @@ interface ExportFormat {
   extension: ExportExtension;
   /** Whether the export style settings (font, spacing, margins, ...) apply to this format. */
   usesStyle: boolean;
-  generate: (resume: ResumeData, style: StyleOption) => string | Promise<Buffer>;
+  generate: (resume: ResumeData, options: PackageExportOptions) => string | Promise<Buffer>;
 }
 
 const FORMATS: ExportFormat[] = [
@@ -30,14 +30,24 @@ const FORMATS: ExportFormat[] = [
     usesStyle: false,
     generate: (resume) => resumeToMarkdown(resume),
   },
-  { label: 'HTML (.html)', extension: 'html', usesStyle: true, generate: resumeToHtml },
+  {
+    label: 'HTML (.html)',
+    extension: 'html',
+    usesStyle: true,
+    generate: (resume, options) => resumeToHtml(resume, options.style, options.details),
+  },
   {
     label: 'Word document (.docx)',
     extension: 'docx',
     usesStyle: true,
-    generate: resumeToDocxBuffer,
+    generate: (resume, options) => resumeToDocxBuffer(resume, options.style, options.details),
   },
-  { label: 'PDF (.pdf)', extension: 'pdf', usesStyle: true, generate: resumeToPdfBuffer },
+  {
+    label: 'PDF (.pdf)',
+    extension: 'pdf',
+    usesStyle: true,
+    generate: (resume, options) => resumeToPdfBuffer(resume, options.style, options.details),
+  },
 ];
 
 /** Reads the `hiredHand.export.*` settings for this workspace folder and resolves them to a valid style. */
@@ -54,9 +64,15 @@ function loadExportSettings(workspaceFolder: vscode.WorkspaceFolder): ResolvedEx
     entrySpacing: config.get<number | null>('entrySpacing'),
     margin: config.get<number | null>('margin'),
     pageSize: config.get<string>('pageSize'),
+    projectLinks: config.get<string>('projectLinks'),
     headingCase: config.get<string>('headingCase'),
   };
   return resolveExportSettings(values);
+}
+
+/** The options handed to an exporter; formats that ignore the settings get the built-in look. */
+function exportOptionsFor(settings: ResolvedExportSettings | undefined): PackageExportOptions {
+  return settings ? { style: settings.style, details: settings.details } : { style: 'standard' };
 }
 
 /** Tells the user about settings that were ignored, without blocking the export. */
@@ -96,11 +112,11 @@ async function performExport(
   workspaceFolder: vscode.WorkspaceFolder,
   resume: ResumeData,
   format: ExportFormat,
-  style: StyleOption,
+  options: PackageExportOptions,
 ): Promise<vscode.Uri | undefined> {
   const outputUri = vscode.Uri.joinPath(workspaceFolder.uri, `resume.${format.extension}`);
   try {
-    const content = await format.generate(resume, style);
+    const content = await format.generate(resume, options);
     const bytes = typeof content === 'string' ? Buffer.from(content, 'utf8') : content;
     await vscode.workspace.fs.writeFile(outputUri, bytes);
     return outputUri;
@@ -135,7 +151,7 @@ export async function exportResumeToFormat(
   if (settings) {
     reportIgnoredSettings(settings.problems);
   }
-  return performExport(workspaceFolder, resume, format, settings?.style ?? 'standard');
+  return performExport(workspaceFolder, resume, format, exportOptionsFor(settings));
 }
 
 export async function exportResume(workspaceFolder: vscode.WorkspaceFolder): Promise<void> {
@@ -166,7 +182,7 @@ export async function exportResume(workspaceFolder: vscode.WorkspaceFolder): Pro
     workspaceFolder,
     resume,
     format,
-    settings?.style ?? 'standard',
+    exportOptionsFor(settings),
   );
   if (!outputUri) {
     return;

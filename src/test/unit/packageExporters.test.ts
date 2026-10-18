@@ -89,10 +89,38 @@ suite('resumeToHtml (shared exporter)', () => {
     assert.ok(html.indexOf('>Skills<') < html.indexOf('>Experience<'));
   });
 
-  test('keeps a project URL after its description, as the exports always have', () => {
+  test('leaves a project URL out unless projectLinks asks for it', () => {
     const html = resumeToHtml(fullyPopulatedResume(), CLASSIC_STYLE);
 
-    assert.ok(html.includes('A useful tool. — https://example.com'));
+    assert.ok(!html.includes('Link: '));
+    assert.ok(!html.includes('https://example.com'));
+  });
+
+  test('puts a project URL on its own line when projectLinks is "below"', () => {
+    const html = resumeToHtml(fullyPopulatedResume(), CLASSIC_STYLE, { projectLinks: 'below' });
+
+    assert.ok(html.includes('<p>Link: <a href="https://example.com">https://example.com</a></p>'));
+  });
+
+  test('puts a project URL on the heading line when projectLinks is "heading"', () => {
+    const html = resumeToHtml(fullyPopulatedResume(), CLASSIC_STYLE, { projectLinks: 'heading' });
+
+    assert.ok(html.includes('<a href="https://example.com">https://example.com</a></span>'));
+    assert.ok(!html.includes('Link: '));
+  });
+
+  test('prints a project URL in Word and PDF output too', async () => {
+    const details = { projectLinks: 'below' } as const;
+
+    const docx = await docxXml(
+      await resumeToDocxBuffer(fullyPopulatedResume(), CLASSIC_STYLE, details),
+    );
+    const pdf = await PDFDocument.load(
+      await resumeToPdfBuffer(fullyPopulatedResume(), CLASSIC_STYLE, details),
+    );
+
+    assert.ok(docx.includes('Link: https://example.com'));
+    assert.ok(pdf.getPageCount() >= 1);
   });
 
   test('keeps the LinkedIn and portfolio URLs in the contact details', () => {

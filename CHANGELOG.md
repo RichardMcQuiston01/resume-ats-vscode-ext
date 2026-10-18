@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   real text with real headings); out-of-range values are ignored with a message naming the setting, and
   readability concerns (for example body text under 10 pt) are noted without blocking the export.
 - A4 paper size for PDF and Word exports.
+- **`hiredHand.export.projectLinks`**: choose where a project's URL goes in the HTML, Word, and PDF exports:
+  on its own line under the project (`below`, the default), on the project's heading line after its name
+  (`heading`), or not at all (`off`).
 
 ### Changed
 
@@ -24,7 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   spacing and fonts differ slightly, and the three formats now match each other more closely. Visible
   differences: the education GPA appears as a bullet under the degree, a blank name falls back to "Resume"
   (was "Untitled"), and the LinkedIn and portfolio links sit on their own line under the contact details.
-  Your section order, Bold/Italic highlights, and project URLs are preserved.
+  Your section order, Bold/Italic highlights, and project URLs are preserved; a project's URL now appears as
+  "Link: <url>" on its own line rather than appended to the description (use `projectLinks` to move or hide it).
 
 ## [0.2.0] - 2026-09-22
 
