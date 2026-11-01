@@ -106,5 +106,8 @@
   "funding": {
     "type": "individual",
     "url": "https://www.paypal.com/ncp/payment/CZ8G9V4M43926"
+  },
+  "sponsor": {
+    "url": "https://www.paypal.com/ncp/payment/CZ8G9V4M43926"
   }
 }
