@@ -102,5 +102,12 @@
     "mocha": "^12.0.2",
     "prettier": "^3.3.2",
     "typescript": "^5.4.5"
+  },
+  "funding": {
+    "type": "individual",
+    "url": "https://www.paypal.com/ncp/payment/CZ8G9V4M43926"
+  },
+  "sponsor": {
+    "url": "https://www.paypal.com/ncp/payment/CZ8G9V4M43926"
   }
 }
