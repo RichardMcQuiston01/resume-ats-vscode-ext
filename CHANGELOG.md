@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-10
+
 ### Changed
 
 - Donations now point at Ko-fi instead of PayPal: the README badge, the `package.json` funding link and a new `.github/FUNDING.yml`. The PayPal QR image is removed.
