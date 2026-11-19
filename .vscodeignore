@@ -6,7 +6,6 @@
 .vscode-test/**
 .github/**
 CONTRIBUTING.md
-donate.svg
 esbuild.js
 node_modules/**
 out/**
