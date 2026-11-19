@@ -450,6 +450,11 @@ function renderCertifications(): void {
       }),
     );
     row.appendChild(
+      textField('Credential URL', entry.credentialUrl, (value) => {
+        resume.certifications[index].credentialUrl = value;
+      }),
+    );
+    row.appendChild(
       entryControls({
         disableUp: index === 0,
         disableDown: index === resume.certifications.length - 1,
@@ -490,6 +495,26 @@ function renderProjects(): void {
     row.appendChild(
       textField('URL', entry.url, (value) => {
         resume.projects[index].url = value;
+      }),
+    );
+    row.appendChild(
+      textField('Repository URL', entry.repoUrl, (value) => {
+        resume.projects[index].repoUrl = value;
+      }),
+    );
+    row.appendChild(
+      textField('Demo URL', entry.demoUrl, (value) => {
+        resume.projects[index].demoUrl = value;
+      }),
+    );
+    row.appendChild(
+      textField('Tech stack (comma-separated)', formatSkillList(entry.techStack), (value) => {
+        resume.projects[index].techStack = parseSkillList(value);
+      }),
+    );
+    row.appendChild(
+      textField('Outcome', entry.outcome, (value) => {
+        resume.projects[index].outcome = value;
       }),
     );
     row.appendChild(

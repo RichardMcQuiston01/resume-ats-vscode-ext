@@ -33,14 +33,33 @@ export function fullyPopulatedResume(): ResumeData {
       },
     ],
     skills: [{ category: 'Languages', skills: ['TypeScript', 'Go'] }],
-    certifications: [{ name: 'AWS Certified', issuer: 'AWS', issueDate: '2021-01' }],
+    certifications: [
+      { name: 'AWS Certified', issuer: 'AWS', issueDate: '2021-01', credentialUrl: '' },
+    ],
     projects: [
       {
         name: 'Side Project',
         description: 'A useful tool.',
         url: 'https://example.com',
+        repoUrl: '',
+        demoUrl: '',
+        techStack: [],
+        outcome: '',
         highlights: ['Built with TypeScript'],
       },
     ],
   };
+}
+
+/** The fully populated resume, plus every project and certification detail filled in. */
+export function resumeWithEntryDetails(): ResumeData {
+  const resume = fullyPopulatedResume();
+  resume.certifications[0]!.credentialUrl = 'https://verify.example.com/cert/42';
+  Object.assign(resume.projects[0]!, {
+    repoUrl: 'https://github.com/example/side-project',
+    demoUrl: 'https://demo.example.com',
+    techStack: ['TypeScript', 'Node.js'],
+    outcome: 'Cut report time from 2 days to 2 hours.',
+  });
+  return resume;
 }

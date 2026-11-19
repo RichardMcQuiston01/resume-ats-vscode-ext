@@ -151,8 +151,16 @@ function validateCertifications(value: unknown, errors: string[]): void {
         `certifications[${index}].${field} must be a string`,
       );
     }
+    // Added after the first release; files saved before then omit it.
+    pushIfInvalid(
+      errors,
+      certification.credentialUrl === undefined || typeof certification.credentialUrl === 'string',
+      `certifications[${index}].credentialUrl must be a string`,
+    );
   });
 }
+
+const OPTIONAL_PROJECT_STRING_FIELDS: Array<keyof ProjectEntry> = ['repoUrl', 'demoUrl', 'outcome'];
 
 function validateProjects(value: unknown, errors: string[]): void {
   if (!Array.isArray(value)) {
@@ -177,6 +185,19 @@ function validateProjects(value: unknown, errors: string[]): void {
       errors,
       isStringArray(project.highlights),
       `projects[${index}].highlights must be an array of strings`,
+    );
+    // Added after the first release; files saved before then omit them.
+    for (const field of OPTIONAL_PROJECT_STRING_FIELDS) {
+      pushIfInvalid(
+        errors,
+        project[field] === undefined || typeof project[field] === 'string',
+        `projects[${index}].${field} must be a string`,
+      );
+    }
+    pushIfInvalid(
+      errors,
+      project.techStack === undefined || isStringArray(project.techStack),
+      `projects[${index}].techStack must be an array of strings`,
     );
   });
 }
@@ -219,4 +240,27 @@ export function validateResumeData(data: unknown): ValidationResult {
   validateProjects(resume.projects, errors);
 
   return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Fills in the fields that resume.json files saved by earlier versions omit (a project's
+ * repository and demo links, tech stack, and outcome; a certification's credential URL), so
+ * the rest of the extension can rely on them being present. Call it on data that has already
+ * passed `validateResumeData`. Returns a new object; the input is not modified.
+ */
+export function normalizeResumeData(data: ResumeData): ResumeData {
+  return {
+    ...data,
+    certifications: data.certifications.map((entry) => ({
+      ...entry,
+      credentialUrl: entry.credentialUrl ?? '',
+    })),
+    projects: data.projects.map((entry) => ({
+      ...entry,
+      repoUrl: entry.repoUrl ?? '',
+      demoUrl: entry.demoUrl ?? '',
+      techStack: entry.techStack ?? [],
+      outcome: entry.outcome ?? '',
+    })),
+  };
 }

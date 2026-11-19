@@ -7,11 +7,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.2.1] - 2026-11-10
+## [0.3.2] - 2026-11-19
 
 ### Changed
 
 - Donations now point at Ko-fi instead of PayPal: the README badge, the `package.json` funding link and a new `.github/FUNDING.yml`. The PayPal QR image is removed.
+
+## [0.3.1] - 2026-10-18
+
+### Fixed
+
+- The extension icon is now 512×512 instead of 2000×2000. The Marketplace rejects icons larger than
+  1024×1024, so 0.3.0 could not be published; everything in 0.3.0 below ships in this release.
+
+## [0.3.0] - 2026-10-18
+
+> Not published to the Marketplace (its icon was rejected). Released as 0.3.1.
+
+### Added
+
+- **Export style settings** (`hiredHand.export.*`): tune the HTML, Word, and PDF exports for the people who
+  read them. Choose a preset (`classic`, `compact`, `standard`, `comfortable`) and optionally override the
+  font family (sans-serif, serif, monospace), body, name, and heading sizes, line spacing, section and entry
+  spacing, margins, paper size (Letter or A4), and heading case. Exports stay ATS-friendly (a single column of
+  real text with real headings); out-of-range values are ignored with a message naming the setting, and
+  readability concerns (for example body text under 10 pt) are noted without blocking the export.
+- A4 paper size for PDF and Word exports.
+- **`hiredHand.export.projectLinks`**: choose where a project's links go in the HTML, Word, and PDF exports:
+  on its own line under the project (`below`, the default), on the project's heading line after its name
+  (`heading`), or not at all (`off`).
+- **More project and certification details** in `resume.json` and **Edit Resume**: a project can now have a
+  repository URL, a demo URL, a tech stack, and an outcome, and a certification can have a credential URL.
+  Existing `resume.json` files keep working; the new fields default to empty. The HTML, Word, and PDF exports
+  leave the new details out unless you turn them on with `hiredHand.export.projectTechStack`,
+  `projectOutcome`, `credentialUrl` (and `projectLinks`, which now also covers the repository and demo links).
+  Markdown exports list everything you entered. **Edit Resume** warns about a link that is not a web address.
+
+### Changed
+
+- HTML, Word, and PDF exports are now produced by the shared `@richardmcquiston01/ats-resume-export` package
+  instead of this extension's own code. The `classic` preset (the default) approximates the previous look, but
+  spacing and fonts differ slightly, and the three formats now match each other more closely. Visible
+  differences: the education GPA appears as a bullet under the degree, a blank name falls back to "Resume"
+  (was "Untitled"), and the LinkedIn and portfolio links sit on their own line under the contact details.
+  Your section order, Bold/Italic highlights, and project URLs are preserved; a project's URL now appears as
+  "Link: <url>" on its own line rather than appended to the description (use `projectLinks` to move or hide it).
 
 ## [0.2.0] - 2026-09-22
 

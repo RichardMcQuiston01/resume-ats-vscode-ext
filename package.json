@@ -2,7 +2,7 @@
   "name": "hired-hand-resume-builder",
   "displayName": "Hired Hand: Resume Builder",
   "description": "Create an ATS-compatible resume from within VS Code by filling out a structured template section by section.",
-  "version": "0.2.1",
+  "version": "0.3.2",
   "publisher": "richardmcquiston01",
   "license": "Apache-2.0",
   "icon": "resources/icon.jpg",
@@ -65,6 +65,203 @@
           "group": "navigation@2"
         }
       ]
+    },
+    "configuration": {
+      "title": "Hired Hand: Resume Builder",
+      "properties": {
+        "hiredHand.export.preset": {
+          "type": "string",
+          "enum": [
+            "classic",
+            "compact",
+            "standard",
+            "comfortable"
+          ],
+          "enumDescriptions": [
+            "This extension's own look: Arial/Helvetica, 10 pt text, section headings in title case.",
+            "Tighter spacing, so more fits on a page.",
+            "The shared exporter's built-in look.",
+            "Roomier spacing and larger text, easier to skim."
+          ],
+          "default": "classic",
+          "markdownDescription": "Overall look of the HTML, Word, and PDF exports. The options below override individual parts of it. Markdown exports are unaffected. Every choice stays ATS-friendly: a single column of real text with real headings."
+        },
+        "hiredHand.export.projectLinks": {
+          "type": "string",
+          "enum": [
+            "below",
+            "heading",
+            "off"
+          ],
+          "enumDescriptions": [
+            "On its own line under the project, labelled \"Link:\", \"Code:\", and \"Demo:\".",
+            "On the project's heading line, after its name.",
+            "Do not print project links."
+          ],
+          "default": "below",
+          "markdownDescription": "Where a project's links (its URL, repository URL, and demo URL) go in the HTML, Word, and PDF exports."
+        },
+        "hiredHand.export.projectTechStack": {
+          "type": "string",
+          "enum": [
+            "off",
+            "heading",
+            "below"
+          ],
+          "enumDescriptions": [
+            "Do not print a project's tech stack.",
+            "On the project's heading line, after its name.",
+            "On its own line under the project, labelled \"Tech stack:\"."
+          ],
+          "default": "off",
+          "markdownDescription": "Where a project's tech stack goes in the HTML, Word, and PDF exports."
+        },
+        "hiredHand.export.projectOutcome": {
+          "type": "string",
+          "enum": [
+            "off",
+            "below"
+          ],
+          "enumDescriptions": [
+            "Do not print a project's outcome.",
+            "On its own line under the project, labelled \"Outcome:\"."
+          ],
+          "default": "off",
+          "markdownDescription": "Whether a project's outcome is printed in the HTML, Word, and PDF exports. It is a full sentence, so it only goes on its own line."
+        },
+        "hiredHand.export.credentialUrl": {
+          "type": "string",
+          "enum": [
+            "off",
+            "heading",
+            "below"
+          ],
+          "enumDescriptions": [
+            "Do not print a certification's credential URL.",
+            "On the certification's line, after its name, issuer, and date.",
+            "On its own line under the certification, labelled \"Credential:\"."
+          ],
+          "default": "off",
+          "markdownDescription": "Where a certification's credential URL goes in the HTML, Word, and PDF exports."
+        },
+        "hiredHand.export.fontFamily": {
+          "type": "string",
+          "enum": [
+            "",
+            "sans-serif",
+            "serif",
+            "monospace"
+          ],
+          "enumDescriptions": [
+            "Use the preset's font.",
+            "Arial / Helvetica.",
+            "Times New Roman / Times.",
+            "Courier New / Courier."
+          ],
+          "default": "",
+          "markdownDescription": "Font family for HTML, Word, and PDF exports. Only these three standard families are offered because every ATS, PDF reader, and Word install has them."
+        },
+        "hiredHand.export.fontSize": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "default": null,
+          "minimum": 8,
+          "maximum": 16,
+          "markdownDescription": "Body text size in points (8 to 16). Leave empty to use the preset. 10 to 12 is the usual range for a resume."
+        },
+        "hiredHand.export.nameFontSize": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "default": null,
+          "minimum": 12,
+          "maximum": 36,
+          "markdownDescription": "Size of your name at the top, in points (12 to 36). Leave empty to use the preset."
+        },
+        "hiredHand.export.headingFontSize": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "default": null,
+          "minimum": 8,
+          "maximum": 18,
+          "markdownDescription": "Size of section headings, in points (8 to 18). Leave empty to use the preset."
+        },
+        "hiredHand.export.lineSpacing": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "default": null,
+          "minimum": 1,
+          "maximum": 2,
+          "markdownDescription": "Line height as a multiple of the font size (1 to 2). About 1.15 to 1.4 reads comfortably. Leave empty to use the preset."
+        },
+        "hiredHand.export.sectionSpacing": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "default": null,
+          "minimum": 0,
+          "maximum": 36,
+          "markdownDescription": "Space above each section heading, in points (0 to 36). Leave empty to use the preset."
+        },
+        "hiredHand.export.entrySpacing": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "default": null,
+          "minimum": 0,
+          "maximum": 24,
+          "markdownDescription": "Space between entries within a section, in points (0 to 24). Leave empty to use the preset."
+        },
+        "hiredHand.export.margin": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "default": null,
+          "minimum": 18,
+          "maximum": 108,
+          "markdownDescription": "Page margin on all four sides, in points (18 to 108; 72 = 1 inch). Leave empty to use the preset."
+        },
+        "hiredHand.export.pageSize": {
+          "type": "string",
+          "enum": [
+            "",
+            "letter",
+            "a4"
+          ],
+          "enumDescriptions": [
+            "Use the preset's paper size.",
+            "US Letter.",
+            "A4."
+          ],
+          "default": "",
+          "markdownDescription": "Paper size for PDF and Word exports."
+        },
+        "hiredHand.export.headingCase": {
+          "type": "string",
+          "enum": [
+            "",
+            "upper",
+            "title"
+          ],
+          "enumDescriptions": [
+            "Use the preset's heading style.",
+            "SECTION HEADINGS IN CAPITALS.",
+            "Section headings as written (Experience)."
+          ],
+          "default": "",
+          "markdownDescription": "How section headings are written."
+        }
+      }
     }
   },
   "scripts": {
@@ -83,6 +280,7 @@
     "package": "vsce package"
   },
   "dependencies": {
+    "@richardmcquiston01/ats-resume-export": "^0.4.0",
     "docx": "^9.0.2",
     "jsonc-parser": "^3.3.1",
     "pdf-lib": "^1.17.1"
@@ -99,6 +297,7 @@
     "esbuild": "^0.28.2",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
+    "jszip": "3.10.2",
     "mocha": "^12.0.2",
     "prettier": "^3.3.2",
     "typescript": "^5.4.5"

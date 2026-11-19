@@ -50,6 +50,10 @@ suite('checkAtsCompatibility', () => {
         name: 'Side Project',
         description: 'A tool.',
         url: 'https://example.com',
+        repoUrl: '',
+        demoUrl: '',
+        techStack: [],
+        outcome: '',
         highlights: ['y'.repeat(221)],
       },
     ];

@@ -28,7 +28,9 @@ warnings as you go, and export to Markdown, HTML, DOCX, or PDF.
 - **Export Resume** — one command, four formats: Markdown, HTML, DOCX, and PDF, all
   single-column with no tables or images, so the layout an ATS parser sees matches
   what you built. Bold/italic Highlights formatting renders as real bold/italic text
-  in every format.
+  in every format. HTML, DOCX, and PDF exports can be tuned for the people who will
+  read them (font, text size, spacing, margins, paper size) from VS Code settings,
+  without giving up ATS-friendly structure.
 
 ## Status
 
@@ -73,6 +75,74 @@ Then open the folder in VS Code and press `F5` to launch an Extension Developmen
 The **Edit Resume** and **Export Resume** commands are also available as toolbar
 buttons in the editor title bar whenever `resume.json` is the active file.
 
+### Customizing exports
+
+An ATS reads your resume first, then a person does, so the HTML, DOCX, and PDF exports
+can be tuned for readability. Open **Settings** and search for `hiredHand.export`.
+
+| Setting                            | What it changes                                                                | Allowed                             |
+| ---------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------- |
+| `preset`                           | Overall look: `classic` (the default), `compact`, `standard`, or `comfortable` | those four                          |
+| `fontFamily`                       | `sans-serif` (Arial/Helvetica), `serif` (Times), or `monospace` (Courier)      | those three                         |
+| `fontSize`                         | Body text, in points                                                           | 8 to 16                             |
+| `nameFontSize` / `headingFontSize` | Your name and section headings, in points                                      | 12 to 36 / 8 to 18                  |
+| `lineSpacing`                      | Line height as a multiple of the font size                                     | 1 to 2                              |
+| `sectionSpacing` / `entrySpacing`  | Space above section headings / between entries, in points                      | 0 to 36 / 0 to 24                   |
+| `margin`                           | Page margin on all four sides, in points (72 = 1 inch)                         | 18 to 108                           |
+| `pageSize`                         | `letter` or `a4` (PDF and Word)                                                | those two                           |
+| `headingCase`                      | `upper` (SECTION) or `title` (Section)                                         | those two                           |
+| `projectLinks`                     | Where a project's links (URL, repository, demo) go                             | `below` (default), `heading`, `off` |
+| `projectTechStack`                 | Where a project's tech stack goes                                              | `off` (default), `heading`, `below` |
+| `projectOutcome`                   | Whether a project's outcome is printed (on its own line)                       | `off` (default), `below`            |
+| `credentialUrl`                    | Where a certification's credential URL goes                                    | `off` (default), `heading`, `below` |
+
+Leave a setting empty to use the preset's value; set one to override just that part.
+Markdown exports have no layout, so the style settings do not apply to them. A Markdown export
+simply lists everything you entered for each project and certification.
+
+**ATS safety is built in.** Settings can only change how the page looks, never its
+structure: the exports stay a single column of real text with real headings, in fonts
+every ATS, PDF reader, and Word install has. A value outside its range is ignored, and
+the export tells you which setting and why, instead of failing. If a choice is allowed
+but hard on human readers (body text under 10 pt, tight line spacing, very narrow
+margins), the export still succeeds and adds a short note.
+
+### Project and certification details
+
+Besides a name and description, a project can have a **URL**, a **repository URL**, a **demo URL**,
+a **tech stack**, and an **outcome** (the result or impact, for example "Cut reconciliation from 2
+days to 2 hours."), and a certification can have a **credential URL** (a Credly or issuer page that
+verifies it). Fill them in from **Edit Resume**, or add them to `resume.json`:
+
+```json
+{
+  "certifications": [
+    {
+      "name": "AWS Certified Solutions Architect",
+      "issuer": "AWS",
+      "issueDate": "2023-05",
+      "credentialUrl": "https://verify.example.com/cert/42"
+    }
+  ],
+  "projects": [
+    {
+      "name": "Ledger",
+      "description": "Reconciliation tool.",
+      "url": "https://ledger.example.com",
+      "repoUrl": "https://github.com/example/ledger",
+      "demoUrl": "https://demo.example.com",
+      "techStack": ["Go", "PostgreSQL"],
+      "outcome": "Cut reconciliation from 2 days to 2 hours.",
+      "highlights": []
+    }
+  ]
+}
+```
+
+The HTML, Word, and PDF exports print the links by default (see `projectLinks`) and leave the rest
+out until you turn them on with the settings above. A `resume.json` saved by an earlier version,
+without these fields, keeps working unchanged.
+
 ### Examples
 
 ```json
@@ -107,4 +177,4 @@ Apache 2
 
 ## Copyright
 
-(c)2026 Richard McQuiston.  All rights reserved.
+(c)2026 Richard McQuiston. All rights reserved.
